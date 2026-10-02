@@ -7,38 +7,28 @@ import {
   ShieldAlert, Bell, LogOut, Copy, FileText, ArrowRight,
   ShieldCheck, Lock, Smartphone, CheckCircle2
 } from 'lucide-react'
-
-const NAV_LINKS = [
-  { path: '/', label: 'Home' },
-  { path: '/verify', label: 'Verify / Check Workspace' },
-  { path: '/history', label: 'History' },
-  { path: '/learn', label: 'Learn (Micro-Lessons)' },
-  { path: '/report', label: 'Report Fraud' },
-]
-
-const LANGUAGES = [
-  { code: 'hi', label: 'हिन्दी', sub: 'Hindi' },
-  { code: 'en', label: 'English', sub: 'English' },
-  { code: 'bn', label: 'বাংলা', sub: 'Bengali' },
-  { code: 'mr', label: 'मराठी', sub: 'Marathi' },
-  { code: 'te', label: 'తెలుగు', sub: 'Telugu' },
-  { code: 'ta', label: 'தமிழ்', sub: 'Tamil' },
-  { code: 'gu', label: 'ગુજરાતી', sub: 'Gujarati' },
-  { code: 'kn', label: 'ಕನ್ನಡ', sub: 'Kannada' },
-]
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Header() {
+  const { currentLang, setLanguage, t, languages } = useLanguage()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   
   // Interactive Modal / Dropdown States
   const [langOpen, setLangOpen] = useState(false)
-  const [selectedLang, setSelectedLang] = useState('hi')
   const [helplineModalOpen, setHelplineModalOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState(null)
   const [copiedHelpline, setCopiedHelpline] = useState(false)
   const [alertsEnabled, setAlertsEnabled] = useState(true)
+
+  const navLinks = [
+    { path: '/', label: t.nav.home },
+    { path: '/verify', label: t.nav.verify },
+    { path: '/history', label: t.nav.history },
+    { path: '/learn', label: t.nav.learn },
+    { path: '/report', label: t.nav.report },
+  ]
 
   const langRef = useRef(null)
   const profileRef = useRef(null)
@@ -82,9 +72,9 @@ export default function Header() {
 
   // Language selection handler
   const handleSelectLanguage = (lang) => {
-    setSelectedLang(lang.code)
+    setLanguage(lang.code)
     setLangOpen(false)
-    showToast(`भाषा बदली: ${lang.label} (${lang.sub})`)
+    showToast(`Language switched: ${lang.label} (${lang.sub})`)
   }
 
   // Copy 1930
@@ -97,7 +87,7 @@ export default function Header() {
 
   const toggleMobile = useCallback(() => setMobileOpen(p => !p), [])
 
-  const currentLangObj = LANGUAGES.find(l => l.code === selectedLang) || LANGUAGES[0]
+  const currentLangObj = languages.find(l => l.code === currentLang) || languages[0]
 
   return (
     <>
@@ -149,16 +139,14 @@ export default function Header() {
                 Sangyan Shield
               </span>
               <span className="logo-slogan" style={{ color: 'var(--color-on-surface-variant)', marginTop: 2 }}>
-                <span className="slogan-hi">संज्ञान शील्ड</span>
-                <span className="slogan-dot"> • </span>
-                <span className="slogan-en">Verify Before You Pay</span>
+                {t.slogan || 'संज्ञान शील्ड • Verify Before You Pay'}
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-lg)' }} className="desktop-nav">
-            {NAV_LINKS.map(link => (
+            {navLinks.map(link => (
               <NavLink
                 key={link.path}
                 to={link.path}
@@ -233,8 +221,8 @@ export default function Header() {
                       Select Language / भाषा चुनें
                     </div>
                     <div style={{ maxHeight: 240, overflowY: 'auto' }}>
-                      {LANGUAGES.map((lang) => {
-                        const isSelected = selectedLang === lang.code
+                      {languages.map((lang) => {
+                        const isSelected = currentLang === lang.code
                         return (
                           <div
                             key={lang.code}
@@ -779,7 +767,7 @@ export default function Header() {
 
             {/* Mobile Nav Links */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '8px 0' }}>
-              {NAV_LINKS.map(link => (
+              {navLinks.map(link => (
                 <NavLink
                   key={link.path}
                   to={link.path}
@@ -810,18 +798,18 @@ export default function Header() {
                 Language / भाषा:
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {LANGUAGES.slice(0, 5).map(lang => (
+                {languages.map(lang => (
                   <button
                     key={lang.code}
                     onClick={() => handleSelectLanguage(lang)}
                     style={{
                       padding: '5px 10px',
                       borderRadius: 'var(--radius-full)',
-                      border: `1px solid ${selectedLang === lang.code ? 'var(--color-primary)' : 'var(--color-outline-variant)'}`,
-                      background: selectedLang === lang.code ? 'var(--color-primary-fixed)' : 'transparent',
-                      color: selectedLang === lang.code ? 'var(--color-primary)' : 'var(--color-on-surface)',
+                      border: `1px solid ${currentLang === lang.code ? 'var(--color-primary)' : 'var(--color-outline-variant)'}`,
+                      background: currentLang === lang.code ? 'var(--color-primary-fixed)' : 'transparent',
+                      color: currentLang === lang.code ? 'var(--color-primary)' : 'var(--color-on-surface)',
                       fontSize: 12,
-                      fontWeight: selectedLang === lang.code ? 700 : 500,
+                      fontWeight: currentLang === lang.code ? 700 : 500,
                       cursor: 'pointer'
                     }}
                   >

@@ -1,89 +1,44 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Shield, ShieldCheck, ShieldAlert, ShieldX, Verified,
   ScanSearch, Link2, MessageSquare, Mic, ArrowRight,
   PlayCircle, Wallet, Handshake, Lock, Search,
   ClipboardPaste, Ban, AlertTriangle, CircleAlert,
-  CheckCircle, TrendingUp, Phone
+  CheckCircle, TrendingUp, Phone, Cpu, Radio, Zap,
+  ExternalLink, FileCheck, Activity, Sparkles, HelpCircle,
+  Clock, Award, ChevronRight
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
+  initial: { opacity: 0, y: 22 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { duration: 0.5, delay, ease: 'easeOut' },
+  transition: { duration: 0.45, delay, ease: 'easeOut' },
 })
 
-const ACTION_CARDS = [
-  {
-    icon: ScanSearch, label: 'Upload Screenshot', desc: 'Scan WhatsApp chats, Telegram groups, payment receipts & app mockups.',
-    tag: 'Instant OCR', color: 'var(--color-primary)', bgColor: 'var(--color-primary-fixed)',
-    hoverBg: 'var(--color-primary)', action: 'Scan Document', tab: 'screenshot',
-  },
-  {
-    icon: Link2, label: 'Check a Link', desc: 'Inspect suspicious investment portals, fake APK downloads & malicious URLs.',
-    tag: 'Domain & SSL', color: 'var(--color-tertiary)', bgColor: 'var(--color-tertiary-fixed)',
-    hoverBg: 'var(--color-tertiary)', action: 'Analyze URL', tab: 'link',
-  },
-  {
-    icon: MessageSquare, label: 'Paste Message', desc: 'Detect Ponzi patterns, fake job offers, and guaranteed return traps.',
-    tag: 'NLP Fraud Model', color: 'var(--color-secondary)', bgColor: 'var(--color-secondary-fixed)',
-    hoverBg: 'var(--color-secondary)', action: 'Inspect Text', tab: 'message',
-  },
-  {
-    icon: Mic, label: 'Record Voice', desc: 'Analyze recorded calls, extortion audio notes, and fake police threats.',
-    tag: 'Bilingual Audio', color: 'var(--color-primary)', bgColor: 'var(--color-surface-container-high)',
-    hoverBg: 'var(--color-primary-container)', action: 'Analyze Audio', tab: 'voice',
-  },
-]
-
 const SAMPLE_QUERIES = [
-  { label: 'paytm-refund-support@ybl', value: 'paytm-refund-support@ybl' },
-  { label: 'groww_daily_50pct_profit', value: 'https://telegram.me/groww_daily_50pct_profit' },
-  { label: 'SEBI Reg INZ000000000', value: 'SEBI Reg INZ000000000' },
-]
-
-const ALERTS = [
-  {
-    type: 'Telegram Channel Tip', title: 'XYZ Global FX Trading',
-    riskLevel: 'High Risk 94/100', riskColor: 'var(--color-error)',
-    riskBg: 'var(--color-error-container)', riskTextColor: 'var(--color-on-error-container)',
-    desc: 'Claimed guaranteed 50% weekly profit on crypto arbitrage. Fraudulent SEBI ID provided:',
-    code: 'INZ00982', time: 'Reported 24 mins ago', status: 'Flagged Scam',
-    statusIcon: Ban, iconColor: 'var(--color-error)',
-  },
-  {
-    type: 'Phishing Link (SMS)', title: 'sebi-online-kyc-verify.in',
-    riskLevel: 'Critical 98/100', riskColor: 'var(--color-on-error)',
-    riskBg: 'var(--color-error)', riskTextColor: 'var(--color-on-error)',
-    desc: 'Impersonating government regulator to harvest net banking login credentials and OTPs. Server traced to rogue overseas IP block.',
-    code: null, time: 'Reported 1 hr ago', status: 'Domain Blacklisted',
-    statusIcon: Shield, iconColor: 'var(--color-error)',
-  },
-  {
-    type: 'SEBI / AMFI Registered', title: 'ABC Mutual Fund Agency',
-    riskLevel: 'Low Risk 10/100', riskColor: 'var(--color-tertiary)',
-    riskBg: 'var(--color-tertiary-fixed)', riskTextColor: 'var(--color-on-tertiary-fixed)',
-    desc: 'Verified AMFI Registered distributor code:',
-    code: 'ARN-88321', time: 'Scanned 2 hrs ago', status: 'Identity Confirmed',
-    statusIcon: ShieldCheck, iconColor: 'var(--color-tertiary)',
-  },
+  { label: 'paytm-refund-support@ybl', value: 'paytm-refund-support@ybl', type: 'danger' },
+  { label: 'sebi-online-kyc-verify.in', value: 'https://sebi-online-kyc-verify.in', type: 'danger' },
+  { label: 'ARN-88321 (Mutual Fund)', value: 'ARN-88321', type: 'safe' },
 ]
 
 export default function HomePage() {
+  const { t, currentLang } = useLanguage()
   const [query, setQuery] = useState('')
   const [resultVisible, setResultVisible] = useState(false)
   const [resultType, setResultType] = useState('danger')
+  const [activeStep, setActiveStep] = useState(0)
   const navigate = useNavigate()
 
   const runCheck = (val) => {
-    const v = (val || query).trim().toLowerCase()
+    const v = (val !== undefined ? val : query).trim().toLowerCase()
     if (!v) return
-    setQuery(val || query)
-    const isSafe = v.includes('arn') || v.includes('registered') || v.includes('agency')
+    setQuery(val !== undefined ? val : query)
+    const isSafe = v.includes('arn') || v.includes('registered') || v.includes('agency') || v.includes('hdfc') || v.includes('sbi.co.in')
     setResultType(isSafe ? 'safe' : 'danger')
     setResultVisible(true)
   }
@@ -91,155 +46,422 @@ export default function HomePage() {
   const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText()
-      if (text) { setQuery(text); runCheck(text) }
+      if (text) {
+        setQuery(text)
+        runCheck(text)
+      }
     } catch {
-      setQuery('suspicious-telegram-fund@paytm')
-      runCheck('suspicious-telegram-fund@paytm')
+      const sample = 'paytm-refund-support@ybl'
+      setQuery(sample)
+      runCheck(sample)
     }
   }
+
+  // 4 Primary Multi-Modal Action Cards using dynamic translations
+  const actionCards = [
+    {
+      icon: ScanSearch,
+      label: t.actions?.card1Title || 'Upload Screenshot',
+      desc: t.actions?.card1Desc || 'Scan WhatsApp chats, Telegram groups, payment receipts & app mockups.',
+      tag: t.actions?.card1Tag || 'Instant OCR',
+      color: 'var(--color-primary)',
+      bgColor: 'var(--color-primary-fixed)',
+      action: t.actions?.card1Action || 'Scan Document',
+      tab: 'screenshot',
+    },
+    {
+      icon: Link2,
+      label: t.actions?.card2Title || 'Check a Link',
+      desc: t.actions?.card2Desc || 'Inspect suspicious investment portals, fake APK downloads & malicious URLs.',
+      tag: t.actions?.card2Tag || 'Domain & SSL',
+      color: '#0891b2',
+      bgColor: '#cffafe',
+      action: t.actions?.card2Action || 'Analyze URL',
+      tab: 'link',
+    },
+    {
+      icon: MessageSquare,
+      label: t.actions?.card3Title || 'Paste Message',
+      desc: t.actions?.card3Desc || 'Detect Ponzi patterns, fake job offers, and guaranteed return traps.',
+      tag: t.actions?.card3Tag || 'NLP Fraud Model',
+      color: '#d97706',
+      bgColor: '#fef3c7',
+      action: t.actions?.card3Action || 'Inspect Text',
+      tab: 'message',
+    },
+    {
+      icon: Mic,
+      label: t.actions?.card4Title || 'Record Voice',
+      desc: t.actions?.card4Desc || 'Analyze recorded calls, extortion audio notes, and fake police threats.',
+      tag: t.actions?.card4Tag || 'Bilingual Audio',
+      color: '#4f46e5',
+      bgColor: '#e0e7ff',
+      action: t.actions?.card4Action || 'Analyze Audio',
+      tab: 'voice',
+    },
+  ]
+
+  // How It Works Steps
+  const howSteps = [
+    {
+      step: '01',
+      icon: ScanSearch,
+      title: t.howItWorks?.step1Title || '1. Submit Input',
+      desc: t.howItWorks?.step1Desc || 'Paste suspicious UPI ID, website link, phone number, chat screenshot, or audio clip.',
+      badge: 'Zero-Storage Privacy',
+    },
+    {
+      step: '02',
+      icon: Cpu,
+      title: t.howItWorks?.step2Title || '2. Multi-Registry AI Verification',
+      desc: t.howItWorks?.step2Desc || 'Instant cross-match with SEBI broker databases, NPCI UPI registries, and I4C incident repository.',
+      badge: '12+ Fraud Models',
+    },
+    {
+      step: '03',
+      icon: ShieldCheck,
+      title: t.howItWorks?.step3Title || '3. Actionable Defense Verdict',
+      desc: t.howItWorks?.step3Desc || 'Get instant risk score (0-100), 1930 fraud freeze guide, and downloadable FIR evidence dossier.',
+      badge: 'Golden Hour Protocol',
+    },
+  ]
+
+  // Threat Telemetry Alerts
+  const alerts = [
+    {
+      type: 'Phishing APK Distribution',
+      title: t.threatRadar?.alert1Title || 'Fake SBI Rewards APK Alert',
+      desc: t.threatRadar?.alert1Desc || 'Malicious SMS posing as bank rewards app siphoning OTPs and credentials via overlay injection.',
+      riskLevel: 'Critical 98/100',
+      riskBg: '#fef2f2',
+      riskColor: '#dc2626',
+      status: 'Blocked by NPCI',
+      time: 'Reported 12m ago',
+      code: 'SHA256: 9f8a...3b21',
+      icon: Ban,
+    },
+    {
+      type: 'Telegram Investment Scam',
+      title: t.threatRadar?.alert2Title || 'Telegram Part-Time Task Fraud',
+      desc: t.threatRadar?.alert2Desc || 'Fraudsters promising ₹3,500 daily for liking YouTube videos, demanding prepaid task deposits.',
+      riskLevel: 'High Risk 92/100',
+      riskBg: '#fffbeb',
+      riskColor: '#d97706',
+      status: 'Scam Network Flagged',
+      time: 'Reported 35m ago',
+      code: 'UPI: parttimepay@icici',
+      icon: AlertTriangle,
+    },
+    {
+      type: 'Digital Arrest Cyber Extortion',
+      title: t.threatRadar?.alert3Title || 'Digital Arrest CBI / Police Impersonation',
+      desc: t.threatRadar?.alert3Desc || 'Video call extortion claiming suspicious courier with contraband; demanding settlement money transfer.',
+      riskLevel: 'Critical 99/100',
+      riskBg: '#fef2f2',
+      riskColor: '#dc2626',
+      status: 'I4C Urgent Notice',
+      time: 'Active Pattern Alert',
+      code: 'Helpline: 1930 Priority',
+      icon: CircleAlert,
+    },
+  ]
 
   return (
     <PageTransition>
       {/* ── Hero Section ──────────────────────────────────── */}
       <section style={{
-        position: 'relative', width: '100%', overflow: 'hidden',
-        background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-on-primary-fixed) 100%)',
-        color: 'var(--color-on-primary)', padding: 'var(--space-xl) 0',
+        position: 'relative',
+        width: '100%',
+        overflow: 'hidden',
+        background: 'radial-gradient(ellipse at 50% 20%, #17327d 0%, #0b132b 85%)',
+        color: '#ffffff',
+        padding: 'clamp(40px, 8vw, 84px) 0 clamp(48px, 9vw, 92px)',
       }}>
         {/* Ambient grid bg */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.07, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.08, pointerEvents: 'none' }}>
           <svg width="100%" height="100%">
             <defs>
-              <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
-                <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="24" cy="24" r="1.5" fill="currentColor" opacity="0.5" />
+              <pattern id="hero-grid" width="44" height="44" patternUnits="userSpaceOnUse">
+                <path d="M 44 0 L 0 0 0 44" fill="none" stroke="currentColor" strokeWidth="1" />
+                <circle cx="22" cy="22" r="1.5" fill="currentColor" opacity="0.6" />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
+            <rect width="100%" height="100%" fill="url(#hero-grid)" />
           </svg>
         </div>
 
-        {/* Light blooms */}
-        <div style={{ position: 'absolute', top: '20%', left: '5%', width: 380, height: 380, background: 'rgba(183,196,255,0.15)', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: -40, right: '10%', width: 340, height: 340, background: 'rgba(98,223,125,0.1)', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none' }} />
+        {/* Ambient glow pulses */}
+        <div style={{
+          position: 'absolute', top: '10%', left: '15%', width: 420, height: 420,
+          background: 'rgba(31, 79, 216, 0.25)', borderRadius: '50%', filter: 'blur(90px)', pointerEvents: 'none'
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '5%', right: '15%', width: 380, height: 380,
+          background: 'rgba(16, 185, 129, 0.16)', borderRadius: '50%', filter: 'blur(90px)', pointerEvents: 'none'
+        }} />
 
-        <div className="container-max" style={{ position: 'relative' }}>
-          <div style={{ maxWidth: 840, margin: '0 auto', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)' }}>
-            <motion.div {...fadeUp()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)', zIndex: 10 }}>
+        <div className="container-max" style={{ position: 'relative', zIndex: 10 }}>
+          <div style={{
+            maxWidth: 880,
+            margin: '0 auto',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 'var(--space-md)'
+          }}>
+            <motion.div {...fadeUp()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)' }}>
+              
+              {/* Badge */}
               <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
-                padding: '4px 14px', borderRadius: 'var(--radius-full)',
-                background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '6px 16px',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
               }}>
-                <ShieldCheck size={16} style={{ color: 'var(--color-tertiary-fixed)' }} />
-                <span className="text-label-sm" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
-                  AI-POWERED BHARAT CYBER DEFENSE
+                <span style={{ position: 'relative', display: 'flex', width: 9, height: 9 }}>
+                  <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite', opacity: 0.8 }} />
+                  <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: 9, height: 9, background: '#10b981' }} />
+                </span>
+                <span className="text-label-sm" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, color: '#dbeafe' }}>
+                  {t.hero?.badge || 'AI-POWERED BHARAT CYBER DEFENSE'}
                 </span>
               </div>
 
-              <h1 className="text-display-hero hero-title-responsive" style={{ color: 'var(--color-on-primary)', fontWeight: 800, fontSize: 'clamp(1.6rem, 4.2vw, 2.85rem)', lineHeight: 1.25, maxWidth: 760 }}>
-                संदेश, लिंक या निवेश सलाह की जांच करें धोखाधड़ी से पहले!
+              {/* Title */}
+              <h1 className="hero-title-responsive" style={{
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: 'clamp(1.75rem, 4.4vw, 3.1rem)',
+                lineHeight: 1.22,
+                maxWidth: 820,
+                letterSpacing: '-0.02em',
+                textShadow: '0 2px 14px rgba(0,0,0,0.3)'
+              }}>
+                {t.hero?.title || 'संदेश, लिंक या निवेश सलाह की जांच करें धोखाधड़ी से पहले!'}
               </h1>
 
-              <p className="text-body-lg" style={{ color: 'var(--color-primary-fixed)', fontWeight: 600, fontSize: 'clamp(1rem, 2.5vw, 1.2rem)' }}>
-                AI-powered verification for safer and smarter India
-              </p>
-              <p className="text-body-md" style={{ color: 'rgba(183,196,255,0.9)', maxWidth: 640, fontSize: 'clamp(0.875rem, 2vw, 1.05rem)', lineHeight: 1.6 }}>
-                Verify WhatsApp forwards, Telegram trading tips, SEBI numbers, and UPI handles before making any payment. Instant zero-trust telemetry for every citizen.
+              {/* Subtitle */}
+              <p style={{
+                color: '#93c5fd',
+                fontWeight: 600,
+                fontSize: 'clamp(1.05rem, 2.5vw, 1.25rem)',
+                margin: '2px 0 0',
+                lineHeight: 1.4
+              }}>
+                {t.hero?.subtitle || 'सुरक्षित और सशक्त भारत के लिए एआई-संचालित सत्यापन प्रणाली'}
               </p>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 'var(--space-sm)', paddingTop: 'var(--space-xs)' }}>
+              {/* Description */}
+              <p style={{
+                color: 'rgba(226, 232, 240, 0.92)',
+                maxWidth: 680,
+                fontSize: 'clamp(0.9rem, 2vw, 1.05rem)',
+                lineHeight: 1.65,
+                margin: 0
+              }}>
+                {t.hero?.desc || 'व्हाट्सएप फॉरवर्ड, टेलीग्राम ट्रेडिंग ग्रुप, सेबी पंजीकरण और यूपीआई हैंडल की तुरंत जांच करें। हर नागरिक के लिए निःशुल्क शून्य-ट्रस्ट सुरक्षा।'}
+              </p>
+
+              {/* CTA Buttons */}
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 'var(--space-md)',
+                paddingTop: 'var(--space-xs)'
+              }}>
                 <Link
                   to="/verify"
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
-                    padding: '12px 24px', borderRadius: 'var(--radius-xl)',
-                    background: 'var(--color-surface-container-lowest)', color: 'var(--color-primary)',
-                    fontWeight: 700, fontSize: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                    transition: 'all 0.2s', textDecoration: 'none'
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '14px 28px',
+                    borderRadius: 'var(--radius-xl)',
+                    background: '#ffffff',
+                    color: '#0f1f54',
+                    fontWeight: 700,
+                    fontSize: 15,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+                    transition: 'all 0.2s ease',
+                    textDecoration: 'none'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.35)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.25)'
                   }}
                 >
-                  <ShieldCheck size={18} />
-                  <span>Start Checking</span>
+                  <ShieldCheck size={20} color="#1f4fd8" />
+                  <span>{t.hero?.startBtn || 'सत्यापन शुरू करें'}</span>
                   <ArrowRight size={18} />
                 </Link>
+
                 <button
                   type="button"
                   onClick={() => navigate('/learn')}
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
-                    padding: '12px 24px', borderRadius: 'var(--radius-xl)',
-                    background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)',
-                    color: 'var(--color-on-primary)', fontWeight: 600, fontSize: 14,
-                    transition: 'background 0.2s', border: '1px solid rgba(255,255,255,0.25)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '14px 26px',
+                    borderRadius: 'var(--radius-xl)',
+                    background: 'rgba(255, 255, 255, 0.12)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#ffffff',
+                    fontWeight: 600,
+                    fontSize: 15,
+                    transition: 'background 0.2s, transform 0.2s',
+                    border: '1px solid rgba(255, 255, 255, 0.28)',
                     cursor: 'pointer'
                   }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
                 >
-                  <PlayCircle size={18} />
-                  <span>Explore Lessons</span>
+                  <PlayCircle size={20} />
+                  <span>{t.hero?.learnBtn || 'जागरूकता पाठ देखें'}</span>
                 </button>
               </div>
 
-              {/* Trust metrics */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '12px', paddingTop: 'var(--space-sm)' }} className="text-label-sm">
-                {[
-                  { icon: Verified, label: '3.2 Lakh+ Scams Flagged' },
-                  { icon: Wallet, label: '₹42 Cr Protected' },
-                  { icon: Handshake, label: '100% Free for Citizens' },
-                ].map((item, i) => (
-                  <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(183,196,255,0.95)' }}>
-                    {i > 0 && <span style={{ opacity: 0.4, margin: '0 4px' }}>•</span>}
-                    <item.icon size={16} style={{ color: 'var(--color-tertiary-fixed)' }} />
-                    {item.label}
-                  </span>
-                ))}
+              {/* Trust Metrics Pill Strip */}
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 16,
+                paddingTop: 'var(--space-md)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#e0e7ff', fontSize: 13, fontWeight: 600 }}>
+                  <Verified size={16} color="#34d399" />
+                  <span>{t.hero?.stat1 || '3.2 लाख+ फ्रॉड रोके गए'}</span>
+                </div>
+                <span style={{ opacity: 0.35, color: '#ffffff' }}>•</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#e0e7ff', fontSize: 13, fontWeight: 600 }}>
+                  <Wallet size={16} color="#60a5fa" />
+                  <span>{t.hero?.stat2 || '₹42 करोड़ की बचत'}</span>
+                </div>
+                <span style={{ opacity: 0.35, color: '#ffffff' }}>•</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#e0e7ff', fontSize: 13, fontWeight: 600 }}>
+                  <Handshake size={16} color="#fbbf24" />
+                  <span>{t.hero?.stat3 || 'नागरिकों के लिए 100% निःशुल्क'}</span>
+                </div>
               </div>
+
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ── 4 Action Cards ────────────────────────────────── */}
-      <section className="container-max" style={{ marginTop: -32, position: 'relative', zIndex: 20 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-md)' }}>
-          {ACTION_CARDS.map((card, i) => (
-            <motion.div key={card.label} {...fadeUp(i * 0.1)}>
+      {/* ── 4 Primary Action Cards ────────────────────────── */}
+      <section className="container-max" style={{ marginTop: -36, position: 'relative', zIndex: 25 }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: 'var(--space-md)'
+        }}>
+          {actionCards.map((card, i) => (
+            <motion.div key={card.tab} {...fadeUp(i * 0.08)}>
               <Link
                 to={`/verify?tab=${card.tab}`}
                 style={{
-                  display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-                  padding: 'var(--space-lg)', borderRadius: 'var(--radius-xl)',
-                  background: 'var(--color-surface-container-lowest)',
-                  boxShadow: 'var(--shadow-card)', transition: 'all 0.2s',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '22px 20px',
+                  borderRadius: 'var(--radius-xl)',
+                  background: '#ffffff',
+                  boxShadow: '0 8px 24px rgba(15, 31, 84, 0.08)',
+                  border: '1px solid rgba(196, 197, 215, 0.45)',
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
                   height: '100%',
+                  textDecoration: 'none'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--shadow-hover)'; e.currentTarget.style.transform = 'translateY(-4px)' }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--shadow-card)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.boxShadow = '0 16px 36px rgba(31, 79, 216, 0.14)'
+                  e.currentTarget.style.transform = 'translateY(-6px)'
+                  e.currentTarget.style.borderColor = 'rgba(31, 79, 216, 0.35)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 31, 84, 0.08)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.borderColor = 'rgba(196, 197, 215, 0.45)'
+                }}
               >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{
-                      width: 48, height: 48, borderRadius: 'var(--radius-lg)',
-                      background: card.bgColor, display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', color: card.color, transition: 'all 0.2s',
+                      width: 48,
+                      height: 48,
+                      borderRadius: 'var(--radius-lg)',
+                      background: card.bgColor,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: card.color,
                     }}>
                       <card.icon size={24} />
                     </div>
-                    <span className="text-label-sm" style={{
-                      padding: '4px 10px', borderRadius: 'var(--radius-full)',
-                      background: `${card.bgColor}80`, color: card.color, fontWeight: 700,
+                    <span style={{
+                      padding: '4px 10px',
+                      borderRadius: 'var(--radius-full)',
+                      background: `${card.bgColor}`,
+                      color: card.color,
+                      fontSize: 11,
+                      fontWeight: 700,
                     }}>
                       {card.tag}
                     </span>
                   </div>
+
                   <div>
-                    <h2 className="text-headline-sm" style={{ color: 'var(--color-on-surface)', fontWeight: 700, transition: 'color 0.2s' }}>{card.label}</h2>
-                    <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: 4 }}>{card.desc}</p>
+                    <h3 style={{
+                      color: 'var(--color-on-surface)',
+                      fontWeight: 700,
+                      fontSize: 17,
+                      margin: '0 0 6px 0',
+                      lineHeight: 1.3
+                    }}>
+                      {card.label}
+                    </h3>
+                    <p style={{
+                      color: 'var(--color-on-surface-variant)',
+                      fontSize: 13,
+                      margin: 0,
+                      lineHeight: 1.55
+                    }}>
+                      {card.desc}
+                    </p>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 'var(--space-md)', color: card.color, fontWeight: 600, fontSize: 13 }}>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginTop: 18,
+                  color: card.color,
+                  fontWeight: 700,
+                  fontSize: 13
+                }}>
                   <span>{card.action}</span>
-                  <ArrowRight size={14} />
+                  <ArrowRight size={15} />
                 </div>
               </Link>
             </motion.div>
@@ -247,268 +469,637 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Quick Verification Bar ────────────────────────── */}
-      <motion.section {...fadeUp()} className="container-max" style={{ marginTop: 'var(--space-xl)' }}>
+      {/* ── Fast Multi-Modal Verification Bar ──────────────── */}
+      <motion.section {...fadeUp(0.1)} className="container-max" style={{ marginTop: 'var(--space-xl)' }}>
         <div style={{
-          padding: 'var(--space-xl)', borderRadius: 'var(--radius-xl)',
-          background: 'var(--color-surface-container-lowest)', boxShadow: 'var(--shadow-card)',
-          display: 'flex', flexDirection: 'column', gap: 'var(--space-md)',
+          padding: 'clamp(20px, 4vw, 32px)',
+          borderRadius: 'var(--radius-xl)',
+          background: '#ffffff',
+          boxShadow: '0 10px 30px rgba(15, 31, 84, 0.08)',
+          border: '1px solid rgba(196, 197, 215, 0.5)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-md)',
         }}>
+          {/* Section Header */}
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-sm)' }}>
             <div>
-              <span className="text-label-sm" style={{ fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-primary)', letterSpacing: '0.08em' }}>
-                Fast Multi-Modal Verification Bar
-              </span>
-              <h2 className="text-headline-lg" style={{ color: 'var(--color-on-surface)' }}>Verify Suspicious Request Now</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <Zap size={15} color="var(--color-primary)" />
+                <span className="text-label-sm" style={{ fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-primary)', letterSpacing: '0.07em' }}>
+                  {t.verifyBar?.tag || 'FAST MULTI-MODAL VERIFICATION BAR'}
+                </span>
+              </div>
+              <h2 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.6rem)', fontWeight: 800, margin: 0, color: 'var(--color-on-surface)' }}>
+                {t.verifyBar?.title || 'संदिग्ध अनुरोध की तुरंत जांच करें'}
+              </h2>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', color: 'var(--color-on-surface-variant)' }} className="text-label-sm">
-              <Lock size={16} style={{ color: 'var(--color-tertiary)' }} />
-              <span>Zero Server Storage • Instant Hash Verification</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-on-surface-variant)', fontSize: 12 }}>
+              <Lock size={15} color="var(--color-tertiary)" />
+              <span>{t.verifyBar?.privacy || 'शून्य सर्वर स्टोरेज • तत्काल क्रिप्टोग्राफ़िक हैश जांच'}</span>
             </div>
           </div>
 
-          {/* Input Bar */}
+          {/* Interactive Search Bar */}
           <div style={{
-            display: 'flex', flexDirection: 'row', alignItems: 'stretch', gap: 'var(--space-sm)',
-            background: 'var(--color-surface-container-low)', padding: 8, borderRadius: 'var(--radius-lg)',
+            display: 'flex',
+            alignItems: 'stretch',
+            gap: 8,
+            background: 'var(--color-surface-container-low)',
+            padding: 8,
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-outline-variant)'
           }} className="verify-input-bar">
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingLeft: 'var(--space-md)' }}>
-              <Search size={20} style={{ color: 'var(--color-outline)', marginRight: 'var(--space-sm)', flexShrink: 0 }} />
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', paddingLeft: 12 }}>
+              <Search size={20} style={{ color: 'var(--color-outline)', marginRight: 10, flexShrink: 0 }} />
               <input
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && runCheck()}
-                placeholder="Paste UPI, Link, Phone, or SMS / यूपीआई, लिंक या संदेश यहाँ चिपकाएँ"
-                className="text-body-md"
+                placeholder={t.verifyBar?.placeholder || 'यूपीआई आईडी, लिंक, फोन नंबर या संदेश यहाँ चिपकाएँ...'}
                 style={{
-                  width: '100%', background: 'transparent',
-                  padding: '12px 0', color: 'var(--color-on-surface)',
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  fontSize: 14,
+                  color: 'var(--color-on-surface)',
+                  fontFamily: 'inherit'
                 }}
               />
               <button
+                type="button"
                 onClick={handlePaste}
-                className="text-label-sm"
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  padding: '6px 12px', borderRadius: 'var(--radius-default)',
-                  background: 'var(--color-surface-container)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '6px 12px',
+                  borderRadius: 'var(--radius-md)',
+                  background: '#ffffff',
+                  border: '1px solid var(--color-outline-variant)',
                   color: 'var(--color-on-surface-variant)',
-                  transition: 'all 0.2s', flexShrink: 0, marginRight: 'var(--space-xs)',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: 12,
+                  flexShrink: 0,
+                  marginRight: 6
                 }}
               >
                 <ClipboardPaste size={14} />
-                <span className="paste-label">Paste</span>
+                <span className="paste-label">{t.verifyBar?.paste || 'पेस्ट करें'}</span>
               </button>
             </div>
+
             <button
+              type="button"
               onClick={() => runCheck()}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: 'var(--space-xs)', padding: '14px 28px', borderRadius: 'var(--radius-lg)',
-                background: 'var(--color-primary)', color: 'var(--color-on-primary)',
-                fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px rgba(0,55,177,0.25)',
-                transition: 'background 0.2s', whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '12px 24px',
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--color-primary)',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: 14,
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(31, 79, 216, 0.28)',
+                whiteSpace: 'nowrap',
+                transition: 'background 0.2s, transform 0.15s'
               }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <Shield size={18} />
-              <span>Verify Integrity</span>
+              <Shield size={17} />
+              <span>{t.verifyBar?.verifyBtn || 'सत्यापन जांचें'}</span>
             </button>
           </div>
 
-          {/* Sample chips */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-xs)', paddingTop: 4 }}>
-            <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', fontWeight: 500 }}>Try test samples:</span>
+          {/* Sample Query Chips */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, paddingTop: 2 }}>
+            <span style={{ fontSize: 12, color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
+              {t.verifyBar?.samplePrompt || 'नमूना परीक्षण करें:'}
+            </span>
             {SAMPLE_QUERIES.map(sq => (
               <button
                 key={sq.value}
+                type="button"
                 onClick={() => { setQuery(sq.value); runCheck(sq.value) }}
-                className="text-label-sm"
                 style={{
-                  padding: '4px 12px', borderRadius: 'var(--radius-full)',
+                  padding: '4px 12px',
+                  borderRadius: 'var(--radius-full)',
                   background: 'var(--color-surface-container)',
-                  color: 'var(--color-on-surface)', transition: 'background 0.2s',
+                  border: '1px solid var(--color-outline-variant)',
+                  color: 'var(--color-on-surface)',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'background 0.15s'
                 }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--color-primary-fixed)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--color-surface-container)'}
               >
                 {sq.label}
               </button>
             ))}
           </div>
 
-          {/* Result */}
-          {resultVisible && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              transition={{ duration: 0.3 }}
-              style={{
-                marginTop: 'var(--space-sm)', padding: 'var(--space-md)',
-                borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-low)',
-              }}
-            >
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-md)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                  <div style={{
-                    width: 48, height: 48, borderRadius: '50%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: resultType === 'safe' ? 'var(--color-tertiary-fixed)' : 'var(--color-error-container)',
-                    color: resultType === 'safe' ? 'var(--color-tertiary)' : 'var(--color-error)',
-                  }}>
-                    {resultType === 'safe' ? <ShieldCheck size={24} /> : <ShieldX size={24} />}
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
-                      <span className="text-headline-sm" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                        {resultType === 'safe' ? 'Verified Entity (Safe)' : 'High Threat Signal Detected'}
-                      </span>
-                      <span className="text-label-sm" style={{
-                        padding: '2px 8px', borderRadius: 'var(--radius-full)', fontWeight: 700,
-                        background: resultType === 'safe' ? 'var(--color-tertiary-fixed)' : 'var(--color-error-container)',
-                        color: resultType === 'safe' ? 'var(--color-on-tertiary-fixed)' : 'var(--color-on-error-container)',
-                      }}>
-                        {resultType === 'safe' ? 'Safety Score 96/100' : 'Threat Score 94/100'}
-                      </span>
+          {/* Instant Forensic Feedback Card */}
+          <AnimatePresence>
+            {resultVisible && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, y: -8 }}
+                animate={{ opacity: 1, height: 'auto', y: 0 }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                style={{
+                  marginTop: 8,
+                  padding: 18,
+                  borderRadius: 'var(--radius-lg)',
+                  background: resultType === 'safe' ? 'rgba(230, 249, 237, 0.7)' : 'rgba(254, 242, 242, 0.85)',
+                  border: `1px solid ${resultType === 'safe' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                }}
+              >
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: resultType === 'safe' ? '#10b981' : '#ef4444',
+                      color: '#ffffff',
+                      flexShrink: 0
+                    }}>
+                      {resultType === 'safe' ? <ShieldCheck size={24} /> : <ShieldAlert size={24} />}
                     </div>
-                    <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: 2 }}>
-                      {resultType === 'safe'
-                        ? 'Official AMFI/SEBI license active. Bank account routing verified through National Automated Clearing House.'
-                        : 'Unregistered entity requesting instant funds. Associated with 18 previous cyber fraud reports on National Helpline 1930.'
-                      }
-                    </p>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 800, fontSize: 16, color: resultType === 'safe' ? '#065f46' : '#991b1b' }}>
+                          {resultType === 'safe' ? 'सत्यापित सुरक्षित संस्था (Verified Safe)' : 'उच्च साइबर जोखिम अलर्ट (High Fraud Signal)'}
+                        </span>
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: 'var(--radius-full)',
+                          fontWeight: 700,
+                          fontSize: 11,
+                          background: resultType === 'safe' ? '#d1fae5' : '#fee2e2',
+                          color: resultType === 'safe' ? '#065f46' : '#b91c1c'
+                        }}>
+                          {resultType === 'safe' ? 'सुरक्षा स्कोर 96/100' : 'जोखिम स्कोर 94/100'}
+                        </span>
+                      </div>
+                      <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
+                        {resultType === 'safe'
+                          ? 'आधिकारिक सेबी/एनपीसीआई निर्देशिका में सत्यापित। संबंधित खाता सुरक्षित बैंक गेटवे से जुड़ा है।'
+                          : 'चेतावनी: यह पहचान 1930 साइबर हेल्पलाइन पर पूर्व में दर्ज शिकायतों से मेल खाती है। कोई भुगतान न करें!'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    {resultType !== 'safe' && (
+                      <Link
+                        to="/report"
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: 'var(--radius-md)',
+                          background: '#dc2626',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: 13,
+                          textDecoration: 'none'
+                        }}
+                      >
+                        शिकायत दर्ज करें (Report)
+                      </Link>
+                    )}
+                    <Link
+                      to="/verify"
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 'var(--radius-md)',
+                        background: '#ffffff',
+                        border: '1px solid var(--color-outline-variant)',
+                        color: 'var(--color-primary)',
+                        fontWeight: 700,
+                        fontSize: 13,
+                        textDecoration: 'none'
+                      }}
+                    >
+                      विस्तृत फॉरेंसिक विश्लेषण
+                    </Link>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                  <Link to="/report" style={{
-                    padding: '8px 16px', borderRadius: 'var(--radius-default)',
-                    background: 'var(--color-error)', color: 'var(--color-on-error)',
-                    fontWeight: 600, fontSize: 13,
-                  }}>Report Immediately</Link>
-                  <Link to="/verify" style={{
-                    padding: '8px 16px', borderRadius: 'var(--radius-default)',
-                    background: 'var(--color-surface-container)', color: 'var(--color-on-surface)',
-                    fontWeight: 600, fontSize: 13,
-                  }}>Full Forensic Audit</Link>
-                </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.section>
 
-      {/* ── Trust Strip ───────────────────────────────────── */}
-      <motion.section {...fadeUp()} className="container-max" style={{ marginTop: 'var(--space-xl)' }}>
-        <div style={{
-          borderRadius: 'var(--radius-xl)', background: 'rgba(230,232,234,0.6)',
-          padding: 'var(--space-lg)', display: 'flex', flexWrap: 'wrap',
-          alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-md)',
-        }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
-            {[
-              { icon: CheckCircle, label: 'No investment advice', color: 'var(--color-tertiary)' },
-              { icon: Verified, label: '100% confidential', color: 'var(--color-primary)' },
-              { icon: Shield, label: 'Built for Bharat', color: 'var(--color-tertiary-container)' },
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
-                {i > 0 && <span style={{ color: 'var(--color-outline-variant)', margin: '0 8px', fontSize: 18 }}>•</span>}
-                <item.icon size={18} style={{ color: item.color }} />
-                <span className="text-headline-sm" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{item.label}</span>
-              </div>
-            ))}
+      {/* ── 3-Step Defensive Workflow ("How It Works") ────── */}
+      <section className="container-max" style={{ marginTop: 'clamp(48px, 8vw, 72px)' }}>
+        <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto clamp(28px, 5vw, 44px)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'var(--color-primary-fixed)', borderRadius: 'var(--radius-full)', color: 'var(--color-primary)', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>
+            <Activity size={14} />
+            <span>{t.howItWorks?.tag || 'सुरक्षा प्रक्रिया'}</span>
           </div>
-          <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', maxWidth: 400, textAlign: 'right' }}>
-            We only verify if the person or entity requesting money is legitimate and registered.
+          <h2 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)', fontWeight: 800, color: 'var(--color-on-surface)', margin: '4px 0 10px' }}>
+            {t.howItWorks?.title || 'संज्ञान शील्ड 3 चरणों में कैसे रक्षा करता है'}
+          </h2>
+          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: 14, margin: 0, lineHeight: 1.6 }}>
+            {t.howItWorks?.subtitle || 'जटिल साइबर वित्तीय धोखाधड़ी को सेकंडों में पहचानने वाली तकनीक'}
           </p>
         </div>
-      </motion.section>
 
-      {/* ── Live Threat Intel ──────────────────────────────── */}
-      <section className="container-max" style={{ marginTop: 'var(--space-xl)', marginBottom: 'var(--space-xl)' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 'var(--space-sm)', marginBottom: 'var(--space-lg)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
-              <span style={{ position: 'relative', display: 'flex', width: 12, height: 12 }}>
-                <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'var(--color-error)', animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite', opacity: 0.75 }} />
-                <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: 12, height: 12, background: 'var(--color-error)' }} />
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 'var(--space-lg)'
+        }}>
+          {howSteps.map((step, idx) => (
+            <motion.div
+              key={step.step}
+              {...fadeUp(idx * 0.12)}
+              style={{
+                position: 'relative',
+                padding: '28px 24px',
+                borderRadius: 'var(--radius-xl)',
+                background: '#ffffff',
+                border: '1px solid rgba(196, 197, 215, 0.5)',
+                boxShadow: '0 8px 24px rgba(15, 31, 84, 0.06)',
+                transition: 'all 0.25s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 16px 32px rgba(31, 79, 216, 0.12)'
+                e.currentTarget.style.borderColor = 'var(--color-primary)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 31, 84, 0.06)'
+                e.currentTarget.style.borderColor = 'rgba(196, 197, 215, 0.5)'
+              }}
+            >
+              {/* Step number watermark */}
+              <div style={{
+                position: 'absolute',
+                top: 14,
+                right: 18,
+                fontSize: 38,
+                fontWeight: 900,
+                color: 'var(--color-surface-container-high)',
+                lineHeight: 1,
+                userSelect: 'none'
+              }}>
+                {step.step}
+              </div>
+
+              <div style={{
+                width: 48,
+                height: 48,
+                borderRadius: 'var(--radius-lg)',
+                background: 'linear-gradient(135deg, #1f4fd8, #0f1f54)',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 16,
+                boxShadow: '0 4px 12px rgba(31, 79, 216, 0.25)'
+              }}>
+                <step.icon size={22} />
+              </div>
+
+              <div style={{
+                display: 'inline-block',
+                padding: '3px 8px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--color-primary-fixed)',
+                color: 'var(--color-primary)',
+                fontSize: 11,
+                fontWeight: 700,
+                marginBottom: 10
+              }}>
+                {step.badge}
+              </div>
+
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 8px' }}>
+                {step.title}
+              </h3>
+
+              <p style={{ fontSize: 13.5, color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
+                {step.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Live Bharat Cyber Threat Telemetry Radar ─────── */}
+      <section className="container-max" style={{ marginTop: 'clamp(48px, 8vw, 72px)' }}>
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          gap: 'var(--space-sm)',
+          marginBottom: 'var(--space-md)'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{ position: 'relative', display: 'flex', width: 10, height: 10 }}>
+                <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#dc2626', animation: 'ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite', opacity: 0.8 }} />
+                <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: 10, height: 10, background: '#dc2626' }} />
               </span>
-              <span className="text-label-sm" style={{ fontWeight: 700, color: 'var(--color-error)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Live Threat Intel Feed
+              <span className="text-label-sm" style={{ fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                {t.threatRadar?.tag || 'लाइव थ्रेट टेलीमेट्री'}
               </span>
             </div>
-            <h2 className="text-headline-lg" style={{ color: 'var(--color-on-surface)', fontWeight: 700 }}>
-              Recent Community Alerts (Real-Time Live Shield)
+            <h2 style={{ fontSize: 'clamp(1.4rem, 3.2vw, 2rem)', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0 }}>
+              {t.threatRadar?.title || 'सक्रिय भारत साइबर फ्रॉड अलर्ट'}
             </h2>
+            <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--color-on-surface-variant)' }}>
+              {t.threatRadar?.subtitle || 'भारतीय साइबर अपराध समन्वय केंद्र (I4C) के सहयोग से रीयल-टाइम अपडेट'}
+            </p>
           </div>
-          <Link to="/history" style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--color-primary)', fontWeight: 700, fontSize: 13 }}>
-            <span>View Full Verification Database</span>
+
+          <Link
+            to="/history"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              color: 'var(--color-primary)',
+              fontWeight: 700,
+              fontSize: 13,
+              textDecoration: 'none'
+            }}
+          >
+            <span>संपूर्ण डेटाबेस देखें (Full Audit History)</span>
             <ArrowRight size={16} />
           </Link>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-md)' }}>
-          {ALERTS.map((alert, i) => (
-            <motion.div key={i} {...fadeUp(i * 0.1)} style={{
-              padding: 'var(--space-lg)', borderRadius: 'var(--radius-xl)',
-              background: 'var(--color-surface-container-lowest)', boxShadow: 'var(--shadow-card)',
-              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              transition: 'box-shadow 0.2s',
-            }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-hover)'}
-              onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 'var(--space-md)'
+        }}>
+          {alerts.map((alert, i) => (
+            <motion.div
+              key={i}
+              {...fadeUp(i * 0.1)}
+              style={{
+                padding: '22px 20px',
+                borderRadius: 'var(--radius-xl)',
+                background: '#ffffff',
+                border: '1px solid rgba(196, 197, 215, 0.5)',
+                boxShadow: '0 6px 20px rgba(15, 31, 84, 0.05)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transition: 'box-shadow 0.2s, transform 0.2s'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-3px)'
+                e.currentTarget.style.boxShadow = '0 12px 28px rgba(15, 31, 84, 0.1)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(15, 31, 84, 0.05)'
+              }}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--space-xs)' }}>
-                  <div>
-                    <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', fontFamily: 'var(--font-primary)' }}>{alert.type}</span>
-                    <h3 className="text-headline-sm" style={{ fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1.3, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {alert.title}
-                    </h3>
-                  </div>
-                  <span className="text-label-sm" style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                    padding: '4px 10px', borderRadius: 'var(--radius-full)',
-                    background: alert.riskBg, color: alert.riskTextColor,
-                    fontWeight: 700, flexShrink: 0,
+              <div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-outline)', textTransform: 'uppercase' }}>
+                    {alert.type}
+                  </span>
+                  <span style={{
+                    padding: '3px 8px',
+                    borderRadius: 'var(--radius-full)',
+                    background: alert.riskBg,
+                    color: alert.riskColor,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4
                   }}>
-                    {alert.riskLevel.includes('Critical') ? <CircleAlert size={14} /> : alert.riskLevel.includes('Low') ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
+                    <alert.icon size={13} />
                     {alert.riskLevel}
                   </span>
                 </div>
-                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
+
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 6px' }}>
+                  {alert.title}
+                </h3>
+
+                <p style={{ fontSize: 13, color: 'var(--color-on-surface-variant)', lineHeight: 1.55, margin: '0 0 10px' }}>
                   {alert.desc}
-                  {alert.code && (
-                    <code className="text-data-mono" style={{
-                      fontWeight: 600, padding: '2px 6px', borderRadius: 'var(--radius-sm)',
-                      marginLeft: 4,
-                      color: alert.riskLevel.includes('Low') ? 'var(--color-tertiary)' : 'var(--color-error)',
-                      background: alert.riskLevel.includes('Low') ? 'rgba(127,252,151,0.3)' : 'rgba(255,218,214,0.4)',
-                    }}>
-                      {alert.code}
-                    </code>
-                  )}
                 </p>
+
+                {alert.code && (
+                  <code style={{
+                    display: 'inline-block',
+                    padding: '3px 8px',
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'var(--color-surface-container)',
+                    color: 'var(--color-on-surface)',
+                    fontSize: 11,
+                    fontFamily: 'monospace',
+                    fontWeight: 600
+                  }}>
+                    {alert.code}
+                  </code>
+                )}
               </div>
+
               <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                paddingTop: 'var(--space-md)', marginTop: 'var(--space-md)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: 12,
+                marginTop: 14,
                 borderTop: '1px solid var(--color-surface-container)',
+                fontSize: 12
               }}>
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>{alert.time}</span>
-                <span className="text-label-sm" style={{ display: 'flex', alignItems: 'center', gap: 4, color: alert.iconColor, fontWeight: 600 }}>
-                  <alert.statusIcon size={14} />
-                  {alert.status}
-                </span>
+                <span style={{ color: 'var(--color-outline)' }}>{alert.time}</span>
+                <span style={{ color: alert.riskColor, fontWeight: 700 }}>{alert.status}</span>
               </div>
             </motion.div>
           ))}
         </div>
       </section>
 
+      {/* ── Emergency 1930 Golden Hour Callout Banner ────── */}
+      <motion.section {...fadeUp(0.1)} className="container-max" style={{ marginTop: 'clamp(48px, 8vw, 72px)' }}>
+        <div style={{
+          borderRadius: 'var(--radius-xl)',
+          background: 'linear-gradient(135deg, #0b132b 0%, #1f4fd8 100%)',
+          color: '#ffffff',
+          padding: 'clamp(24px, 5vw, 40px)',
+          boxShadow: '0 16px 40px rgba(15, 31, 84, 0.22)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Subtle glow circle */}
+          <div style={{
+            position: 'absolute',
+            top: -60,
+            right: -60,
+            width: 240,
+            height: 240,
+            borderRadius: '50%',
+            background: 'rgba(239, 68, 68, 0.2)',
+            filter: 'blur(50px)',
+            pointerEvents: 'none'
+          }} />
+
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 'var(--space-lg)',
+            position: 'relative',
+            zIndex: 5
+          }}>
+            <div style={{ maxWidth: 620 }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '4px 12px',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(239, 68, 68, 0.85)',
+                color: '#ffffff',
+                fontSize: 11,
+                fontWeight: 700,
+                marginBottom: 10
+              }}>
+                <Clock size={13} />
+                <span>{t.helplineBanner?.goldenHour || 'गोल्डन ऑवर प्रोटोकॉल: 2 घंटे के भीतर कार्रवाई'}</span>
+              </div>
+
+              <h2 style={{ fontSize: 'clamp(1.35rem, 3vw, 1.85rem)', fontWeight: 800, margin: '0 0 8px', color: '#ffffff', lineHeight: 1.3 }}>
+                {t.helplineBanner?.title || 'ऑनलाइन धोखाधड़ी में पैसे गंवाए? तुरंत 1930 डायल करें'}
+              </h2>
+
+              <p style={{ margin: 0, fontSize: 14, color: '#dbeafe', lineHeight: 1.6 }}>
+                {t.helplineBanner?.desc || 'राष्ट्रीय साइबर अपराध रिपोर्टिंग पोर्टल (I4C) लाभार्थी बैंक खातों को तत्काल फ्रीज कर सकता है।'}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
+              <a
+                href="tel:1930"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '13px 24px',
+                  borderRadius: 'var(--radius-lg)',
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: 15,
+                  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.4)',
+                  textDecoration: 'none',
+                  transition: 'transform 0.15s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <Phone size={18} />
+                <span>{t.helplineBanner?.callBtn || '1930 पर कॉल करें'}</span>
+              </a>
+
+              <Link
+                to="/report"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '13px 22px',
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  backdropFilter: 'blur(8px)',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: 14,
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  textDecoration: 'none',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+              >
+                <FileCheck size={16} />
+                <span>एफआईआर डोजियर बनाएं</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ── Institutional Trust & Security Alignment Strip ── */}
+      <motion.section {...fadeUp(0.1)} className="container-max" style={{ marginTop: 'clamp(40px, 6vw, 64px)', marginBottom: 'clamp(48px, 8vw, 80px)' }}>
+        <div style={{
+          padding: '20px 24px',
+          borderRadius: 'var(--radius-xl)',
+          background: 'rgba(241, 245, 249, 0.8)',
+          border: '1px solid rgba(203, 213, 225, 0.7)',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16
+        }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px 24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: 'var(--color-on-surface)' }}>
+              <CheckCircle size={16} color="#10b981" />
+              <span>I4C (MHA) Standard Alignment</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: 'var(--color-on-surface)' }}>
+              <CheckCircle size={16} color="#10b981" />
+              <span>NPCI UPI Safety Directive</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: 'var(--color-on-surface)' }}>
+              <CheckCircle size={16} color="#10b981" />
+              <span>Zero-Storage End-to-End Privacy</span>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 12, color: 'var(--color-on-surface-variant)', fontWeight: 500 }}>
+            सशक्त भारत, सुरक्षित डिजिटल नागरिक • Sangyan Shield
+          </div>
+        </div>
+      </motion.section>
+
       <style>{`
-        .verify-input-bar { flex-direction: row; }
+        .verify-input-bar {
+          flex-direction: row;
+        }
         @media (max-width: 640px) {
-          .verify-input-bar { flex-direction: column; gap: 8px; padding: 8px; }
-          .verify-input-bar button { width: 100%; justify-content: center; }
-          .paste-label { display: none; }
+          .verify-input-bar {
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px;
+          }
+          .verify-input-bar button {
+            width: 100%;
+            justify-content: center;
+          }
+          .paste-label {
+            display: none;
+          }
         }
       `}</style>
     </PageTransition>
