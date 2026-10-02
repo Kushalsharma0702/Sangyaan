@@ -1,23 +1,105 @@
 import { useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
-  ShieldAlert, Phone, AlertTriangle, Clock, CheckCircle2,
-  Upload, FileText, ArrowRight, ArrowLeft, Copy, Check,
+  ShieldAlert, Phone, AlertTriangle, Check,
+  Upload, FileText, ArrowRight, ArrowLeft, Copy,
   ExternalLink, Building2, Smartphone, Globe, UserX,
-  CreditCard, ShieldCheck, Download, RefreshCw, Send, Info
+  CreditCard, ShieldCheck, RefreshCw, Send
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
+import { useLanguage } from '../context/LanguageContext'
 
-const SCAM_CATEGORIES = [
-  { id: 'upi', label: 'UPI / QR Code Fraud', icon: CreditCard, desc: 'Fake payment links, reversed transactions, scan-to-receive tricks' },
-  { id: 'investment', label: 'Fake Investment / Task Scam', icon: Building2, desc: 'Telegram trading groups, crypto schemes, part-time YouTube rating tasks' },
-  { id: 'deepfake', label: 'AI Deepfake / Voice Cloning', icon: UserX, desc: 'Impersonation of family/executives demanding emergency funds' },
-  { id: 'digital_arrest', label: 'Digital Arrest / CBI Impersonation', icon: AlertTriangle, desc: 'Fake video calls from police, ED, or customs claiming courier narcotics' },
-  { id: 'phishing', label: 'Phishing APK / Banking Malware', icon: Smartphone, desc: 'Malicious links pretending to update PAN, electricity bill, or KYC' },
-  { id: 'website', label: 'Fake E-Commerce / Clone Site', icon: Globe, desc: 'Bogus shopping portals or spoofed banking customer support portals' },
+const SCAM_CATEGORIES_I18N = [
+  {
+    id: 'upi',
+    icon: CreditCard,
+    titles: {
+      en: { label: 'UPI / QR Code Fraud', desc: 'Fake payment links, reversed transactions, scan-to-receive tricks' },
+      hi: { label: 'यूपीआई / क्यूआर कोड धोखाधड़ी', desc: 'फर्जी भुगतान लिंक, उल्टा लेनदेन, स्कैन-टू-रिसीव चालें' },
+      mr: { label: 'यूपीआई / क्यूआर कोड फसवणूक', desc: 'बनावट पेमेंट लिंक, रिव्हर्स व्यवहार, स्कॅन-टू-रिसीव्ह युक्त्या' },
+      bn: { label: 'ইউপিআই / কিউআর কোড প্রতারণা', desc: 'ভুয়া পেমেন্ট লিঙ্ক, লেনদেন ফেরত, স্ক্যান-টু-রিসিভ ফাঁদ' },
+      te: { label: 'యూపీఐ / క్యూఆర్ కోడ్ మోసం', desc: 'నకిలీ చెల్లింపు లింక్‌లు, రివర్స్ లావాదేవీలు, స్కాన్ ట్రిక్స్' },
+      ta: { label: 'யுபிஐ / க்யூஆர் கோட் மோசடி', desc: 'போலி கட்டண இணைப்புகள், தலைகீழ் பரிவர்த்தனைகள்' },
+      gu: { label: 'યુપીઆઈ / ક્યુઆર કોડ છેતરપિંડી', desc: 'નકલી ચુકવણી લિંક, રિવર્સ વ્યવહારો, સ્કેન યુક્તિઓ' },
+      kn: { label: 'ಯುಪಿಐ / ಕ್ಯೂಆರ್ ಕೋಡ್ ವಂಚನೆ', desc: 'ನಕಲಿ ಪಾವತಿ ಲಿಂಕ್‌ಗಳು, ರಿವರ್ಸ್ ವಹಿವಾಟುಗಳು' },
+    }
+  },
+  {
+    id: 'investment',
+    icon: Building2,
+    titles: {
+      en: { label: 'Fake Investment / Task Scam', desc: 'Telegram trading groups, crypto schemes, part-time YouTube rating tasks' },
+      hi: { label: 'फर्जी निवेश / पार्ट-टाइम टास्क घोटाला', desc: 'टेलीग्राम ट्रेडिंग ग्रुप, क्रिप्टो स्कीम, यूट्यूब वीडियो रेटिंग फ्रॉड' },
+      mr: { label: 'बनावट गुंतवणूक / टास्क घोटाळा', desc: 'टेलिग्राम ट्रेडिंग ग्रुप्स, क्रिप्टो स्कीम्स, अर्धवेळ काम फसवणूक' },
+      bn: { label: 'ভুয়া বিনিয়োগ / টাস্ক কেলেঙ্কারি', desc: 'টেলিগ্রাম ট্রেডিং গ্রুপ, ক্রিপ্টো স্কিম, ইউটিউব রেটিং টাস্ক' },
+      te: { label: 'నకిలీ పెట్టుబడి / టాస్క్ మోసం', desc: 'టెలిగ్రామ్ ట్రేడింగ్ గ్రూపులు, క్రిప్టో పథకాలు, యూట్యూబ్ టాస్క్‌లు' },
+      ta: { label: 'போலி முதலீடு / டாஸ்க் மோசடி', desc: 'டெலிகிராம் வர்த்தக குழுக்கள், கிரிப்டோ திட்டங்கள்' },
+      gu: { label: 'નકલી રોકાણ / ટાસ્ક કૌભાંડ', desc: 'ટેલિગ્રામ ટ્રેડિંગ ગ્રૂપ્સ, ક્રિપ્ટો સ્કીમ, પાર્ટ-ટાઇમ જોબ' },
+      kn: { label: 'ನಕಲಿ ಹೂಡಿಕೆ / ಟಾಸ್ಕ್ ವಂಚನೆ', desc: 'ಟೆಲಿಗ್ರಾಂ ಟ್ರೇಡಿಂಗ್ ಗ್ರೂಪ್‌ಗಳು, ಕ್ರಿಪ್ಟೋ ಯೋಜನೆಗಳು' },
+    }
+  },
+  {
+    id: 'deepfake',
+    icon: UserX,
+    titles: {
+      en: { label: 'AI Deepfake / Voice Cloning', desc: 'Impersonation of family/executives demanding emergency funds' },
+      hi: { label: 'एआई डीपफेक / वॉइस क्लोनिंग', desc: 'परिजनों या अधिकारियों की आवाज बनाकर आपातकालीन पैसों की मांग' },
+      mr: { label: 'एआय डीपफेक / व्हॉइस क्लोनिंग', desc: 'कुटुंबीय किंवा अधिकाऱ्यांचा आवाज काढून तातडीने पैसे उकळणे' },
+      bn: { label: 'এআই ডিপফেক / ভয়েস ক্লোনিং', desc: 'পরিবার বা কর্মকর্তার কণ্ঠ অনুকরণ করে জরুরি অর্থের দাবি' },
+      te: { label: 'ఏఐ డీప్‌ఫేక్ / వాయిస్ క్లోనింగ్', desc: 'కుటుంబం లేదా అధికారుల గొంతు అనుకరించి అత్యవసర నిధుల డిమాండ్' },
+      ta: { label: 'ஏஐ டீப்ஃபேக் / குரல் குளோனிங்', desc: 'குடும்பத்தினர் அல்லது அதிகாரிகள் போல் குரல் மாற்றி பணம் பறித்தல்' },
+      gu: { label: 'એઆઈ ડીપફેક / વોઇસ ક્લોનિંગ', desc: 'પરિવાર અથવા અધિકારીઓનો અવાજ કાઢી તાત્કાલિક પૈસા પડાવવા' },
+      kn: { label: 'ಎಐ ಡೀಪ್‌ಫೇಕ್ / ಧ್ವನಿ ಕ್ಲೋನಿಂಗ್', desc: 'ಕುಟುಂಬಸ್ಥರು ಅಥವಾ ಅಧಿಕಾರಿಗಳ ಧ್ವನಿ ಅನುಕರಿಸಿ ಹಣ ಸುಲಿಗೆ' },
+    }
+  },
+  {
+    id: 'digital_arrest',
+    icon: AlertTriangle,
+    titles: {
+      en: { label: 'Digital Arrest / Police Impersonation', desc: 'Fake video calls from police, ED, or customs claiming illegal parcels' },
+      hi: { label: 'डिजिटल अरेस्ट / पुलिस प्रतिरूपण', desc: 'सीबीआई, ईडी या पुलिस बनकर नशीले पार्सल का झूठा डर दिखाकर वसूली' },
+      mr: { label: 'डिजिटल अरेस्ट / पोलीस तोतयागिरी', desc: 'सीबीआय, ईडी किंवा पोलिसांच्या बनावट व्हिडिओ कॉलने खंडणी उकळणे' },
+      bn: { label: 'ডিজিটাল গ্রেপ্তার / পুলিশ ছদ্মবেশ', desc: 'সিবিআই বা পুলিশের ভুয়া ভিডিও কলে অবৈধ পার্সেলের ভীতি প্রদর্শন' },
+      te: { label: 'డిజిటల్ అరెస్ట్ / పోలీసు అనుకరణ', desc: 'సీబీఐ, ఈడీ పేరుతో నకిలీ వీడియో కాల్స్ చేసి బెదిరింపులు' },
+      ta: { label: 'டிஜிட்டல் கைது / போலீஸ் ஆள்மாறாட்டம்', desc: 'சிபிஐ அல்லது போலீஸ் போன்று போலி வீடியோ அழைப்பு மூலம் மிரட்டல்' },
+      gu: { label: 'ડિજિટલ અરેસ્ટ / પોલીસ ઢોંગ', desc: 'સીબીઆઈ અથવા પોલીસ બનીને નકલી વીડિયો કોલ દ્વારા ખંડણી' },
+      kn: { label: 'ಡಿಜಿಟಲ್ ಬಂಧನ / ಪೊಲೀಸ್ ವೇಷಧಾರಿ', desc: 'ಸಿಬಿಐ ಅಥವಾ ಪೊಲೀಸರ ಹೆಸರಿನಲ್ಲಿ ನಕಲಿ ವಿಡಿಯೋ ಕರೆ ಬೆದರಿಕೆ' },
+    }
+  },
+  {
+    id: 'phishing',
+    icon: Smartphone,
+    titles: {
+      en: { label: 'Phishing APK / Banking Malware', desc: 'Malicious links pretending to update PAN, electricity bill, or KYC' },
+      hi: { label: 'फ़िशिंग एपीके / बैंकिंग मैलवेयर', desc: 'पैन अपडेट, बिजली बिल या बैंक केवाईसी के नाम पर दुर्भावनापूर्ण लिंक' },
+      mr: { label: 'फिशिंग एपीके / बँकिंग मालवेअर', desc: 'पॅन कार्ड, वीज बिल किंवा बँक केवायसीच्या नावाखाली धोकादायक अ‍ॅप' },
+      bn: { label: 'ফিশিং এপিকে / ব্যাংকিং ম্যালওয়্যার', desc: 'প্যান আপডেট, বিদ্যুৎ বিল বা কেওয়াইসি নামে ক্ষতিকর লিঙ্ক' },
+      te: { label: 'ఫిషింగ్ ఏపీకే / బ్యాంకింగ్ మాల్వేర్', desc: 'పాన్ అప్‌డేట్, విద్యుత్ బిల్లు లేదా కేవైసీ పేరుతో ప్రమాదకర లింక్‌లు' },
+      ta: { label: 'ஃபிஷிங் ஏபிகே / வங்கி மால்வேர்', desc: 'பான் அப்டேட், மின்சாரக் கட்டணம் அல்லது கேஒய்சி போலி இணைப்புகள்' },
+      gu: { label: 'ફિશિંગ એપીકે / બેંકિંગ માલવેર', desc: 'પાન અપડેટ, વીજળી બિલ અથવા કેવાયસીના નામે નકલી લિંક' },
+      kn: { label: 'ಫಿಶಿಂಗ್ ಎಪಿಕೆ / ಬ್ಯಾಂಕಿಂಗ್ ಮಾಲ್ವೇರ್', desc: 'ಪ್ಯಾನ್ ನವೀಕರಣ, ವಿದ್ಯುತ್ ಬಿಲ್ ಅಥವಾ ಕೆವೈಸಿ ಹೆಸರಿನ ನಕಲಿ ಲಿಂಕ್‌ಗಳು' },
+    }
+  },
+  {
+    id: 'website',
+    icon: Globe,
+    titles: {
+      en: { label: 'Fake E-Commerce / Clone Site', desc: 'Bogus shopping portals or spoofed banking customer support portals' },
+      hi: { label: 'फर्जी शॉपिंग साइट / क्लोन वेबसाइट', desc: 'सस्ती खरीदारी का झांसा देने वाले फर्जी पोर्टल या क्लोन बैंक सपोर्ट' },
+      mr: { label: 'बनावट खरेदी पोर्टल / क्लोन वेबसाइट', desc: 'स्वस्त खरेदीचे आमिष दाखवणारे बनावट संकेतस्थळ किंवा बँक पोर्टल' },
+      bn: { label: 'ভুয়া ই-কমার্স / ক্লোন ওয়েবসাইট', desc: 'ভুয়া শপিং পোর্টাল বা নকল ব্যাংকিং গ্রাহক সহায়তা লিঙ্ক' },
+      te: { label: 'నకిలీ ఈ-కామర్స్ / క్లోన్ వెబ్‌సైట్', desc: 'నకిలీ షాపింగ్ పోర్టల్‌లు లేదా నకిలీ బ్యాంకింగ్ మద్దతు సైట్‌లు' },
+      ta: { label: 'போலி இ-காமர்ஸ் / குளோன் தளம்', desc: 'போலி ஷாப்பிங் தளங்கள் அல்லது போலி வங்கி ஆதரவு தளங்கள்' },
+      gu: { label: 'નકલી ઈ-કોમર્સ / ક્લોન સાઇટ', desc: 'બોગસ શોપિંગ પોર્ટલ અથવા નકલી બેંક ગ્રાહક સહાય પોર્ટલ' },
+      kn: { label: 'ನಕಲಿ ಇ-ಕಾಮರ್ಸ್ / ಕ್ಲೋನ್ ವೆಬ್‌ಸೈಟ್', desc: 'ನಕಲಿ ಶಾಪಿಂಗ್ ಪೋರ್ಟಲ್‌ಗಳು ಅಥವಾ ನಕಲಿ ಬ್ಯಾಂಕಿಂಗ್ ಬೆಂಬಲ ತಾಣಗಳು' },
+    }
+  },
 ]
 
 export default function ReportFraud() {
+  const { t, currentLang } = useLanguage()
+  const lang = currentLang || 'en'
+
   const [step, setStep] = useState(1)
   const [copied, setCopied] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -104,6 +186,13 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
     setTimeout(() => setCopied(false), 2500)
   }
 
+  const stepLabels = [
+    { num: 1, title: t.report?.step1 || 'Category' },
+    { num: 2, title: t.report?.step2 || 'Suspect' },
+    { num: 3, title: t.report?.step3 || 'Evidence' },
+    { num: 4, title: t.report?.step4 || 'Dossier' },
+  ]
+
   return (
     <PageTransition>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'var(--space-xl) var(--margin)' }}>
@@ -141,18 +230,18 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
-                <span className="badge badge-urgent" style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '2px 8px', fontSize: 11 }}>
-                  GOLDEN HOUR PROTOCOL
+                <span className="badge badge-urgent" style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>
+                  {t.report?.goldenHourBadge || 'GOLDEN HOUR PROTOCOL'}
                 </span>
                 <span style={{ fontSize: 13, color: '#ccd4ff', fontWeight: 500 }}>
-                  Act Within 2 Hours
+                  {t.report?.goldenHourTime || 'Act Within 2 Hours'}
                 </span>
               </div>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '4px 0 2px', color: '#ffffff' }}>
-                Lost Money to Online Fraud? Dial 1930 Immediately
+                {t.report?.goldenHourTitle || 'Lost Money to Online Fraud? Dial 1930 Immediately'}
               </h2>
               <p style={{ margin: 0, fontSize: '0.875rem', color: '#e0e3e5', lineHeight: 1.4 }}>
-                The National Cyber Crime Reporting Portal (I4C) can initiate an emergency freeze on the recipient bank account if reported right away.
+                {t.report?.goldenHourDesc || 'The National Cyber Crime Reporting Portal (I4C) can initiate an emergency freeze on the recipient bank account if reported right away.'}
               </p>
             </div>
           </div>
@@ -174,7 +263,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
               }}
             >
               <Phone size={18} />
-              Call 1930 Now
+              {t.report?.call1930 || 'Call 1930 Now'}
             </a>
             <a
               href="https://cybercrime.gov.in"
@@ -195,7 +284,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
               }}
             >
               <ExternalLink size={16} />
-              Official Portal (MHA)
+              {t.report?.officialPortal || 'Official Portal (MHA)'}
             </a>
           </div>
         </motion.div>
@@ -205,25 +294,20 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'var(--color-primary-fixed)', borderRadius: 9999, marginBottom: 12 }}>
             <ShieldAlert size={16} color="var(--color-primary)" />
             <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary)' }}>
-              SOVEREIGN CITIZEN DEFENSE • धोखाधड़ी रिपोर्टिंग
+              {t.report?.pageTag || 'SOVEREIGN CITIZEN DEFENSE'}
             </span>
           </div>
           <h1 className="text-headline-lg" style={{ color: 'var(--color-on-surface)', marginBottom: 8 }}>
-            Report Cyber Fraud & Generate Official FIR Dossier
+            {t.report?.pageTitle || 'Report Cyber Fraud & Generate Official FIR Dossier'}
           </h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', maxWidth: 680, margin: '0 auto' }}>
-            Compile transaction hashes, suspect identifiers, and chat evidence into a structured law-enforcement ready dossier formatted for 1930 and state cyber police cells.
+            {t.report?.pageDesc || 'Compile transaction hashes, suspect identifiers, and chat evidence into a structured law-enforcement ready dossier formatted for 1930 and state cyber police cells.'}
           </p>
         </div>
 
         {/* Multi-Step Progress Tracker */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 'var(--space-xl)', overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: '4px 0' }} className="step-tracker-container">
-          {[
-            { num: 1, title: 'Category' },
-            { num: 2, title: 'Suspect' },
-            { num: 3, title: 'Evidence' },
-            { num: 4, title: 'Dossier' },
-          ].map((item, idx, arr) => (
+          {stepLabels.map((item, idx, arr) => (
             <div key={item.num} style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <div
@@ -280,7 +364,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
               <h2 className="text-headline-sm" style={{ marginBottom: 'var(--space-md)', color: 'var(--color-on-surface)' }}>
-                Step 1: Select Fraud Category & Financial Impact
+                {t.report?.step1Heading || 'Step 1: Select Fraud Category & Financial Impact'}
               </h2>
 
               <div style={{
@@ -289,9 +373,11 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                 gap: 'var(--space-md)',
                 marginBottom: 'var(--space-lg)'
               }}>
-                {SCAM_CATEGORIES.map(cat => {
+                {SCAM_CATEGORIES_I18N.map(cat => {
                   const Icon = cat.icon
                   const selected = formData.category === cat.id
+                  const localizedCat = cat.titles[lang] || cat.titles.en
+
                   return (
                     <div
                       key={cat.id}
@@ -321,10 +407,10 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                       </div>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: 14, color: selected ? 'var(--color-on-primary-fixed)' : 'var(--color-on-surface)' }}>
-                          {cat.label}
+                          {localizedCat.label}
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--color-on-surface-variant)', marginTop: 2 }}>
-                          {cat.desc}
+                          {localizedCat.desc}
                         </div>
                       </div>
                     </div>
@@ -335,7 +421,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-md)', marginTop: 'var(--space-md)' }}>
                 <div>
                   <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                    Financial Loss Amount (₹)
+                    {t.report?.amountLost || 'Financial Loss Amount (₹)'}
                   </label>
                   <input
                     type="number"
@@ -350,14 +436,14 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
 
                 <div>
                   <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                    Transaction ID / UPI UTR Number
+                    {t.report?.utrNumber || 'Transaction ID / UPI UTR Number'}
                   </label>
                   <input
                     type="text"
                     name="utrNumber"
                     value={formData.utrNumber}
                     onChange={handleChange}
-                    placeholder="12-digit UPI UTR or Bank Ref"
+                    placeholder="12-digit UPI UTR / Bank Ref"
                     className="input"
                     style={{ width: '100%' }}
                   />
@@ -365,7 +451,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
 
                 <div>
                   <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                    Date of Occurrence
+                    {t.report?.incidentDate || 'Date of Occurrence'}
                   </label>
                   <input
                     type="date"
@@ -379,7 +465,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
 
                 <div>
                   <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                    Your Bank / Wallet
+                    {t.report?.bankName || 'Your Bank / Wallet'}
                   </label>
                   <input
                     type="text"
@@ -400,7 +486,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                   onClick={() => setStep(2)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                 >
-                  Next: Suspect Identifiers <ArrowRight size={18} />
+                  {t.report?.nextBtn || 'Next: Suspect Identifiers'} <ArrowRight size={18} />
                 </button>
               </div>
             </motion.div>
@@ -410,16 +496,16 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
           {step === 2 && (
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
               <h2 className="text-headline-sm" style={{ marginBottom: 'var(--space-md)', color: 'var(--color-on-surface)' }}>
-                Step 2: Suspect Details & Fraudster Footprints
+                {t.report?.step2Heading || 'Step 2: Suspect Details & Fraudster Footprints'}
               </h2>
               <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-md)' }}>
-                Enter whatever identifiers you have. Any phone number, UPI handle, or website link helps police track the beneficiary accounts.
+                {t.report?.step2Desc || 'Enter whatever identifiers you have. Any phone number, UPI handle, or website link helps police track the beneficiary accounts.'}
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-md)' }}>
                 <div>
                   <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                    Suspect Phone / WhatsApp Number
+                    {t.report?.suspectPhone || 'Suspect Phone / WhatsApp Number'}
                   </label>
                   <input
                     type="tel"
@@ -434,7 +520,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
 
                 <div>
                   <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                    Suspect UPI ID / VPA
+                    {t.report?.suspectUpi || 'Suspect UPI ID / VPA'}
                   </label>
                   <input
                     type="text"
@@ -449,7 +535,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
 
                 <div>
                   <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                    Suspect Bank Account Number
+                    {t.report?.suspectAccount || 'Suspect Bank Account Number'}
                   </label>
                   <input
                     type="text"
@@ -464,7 +550,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
 
                 <div>
                   <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                    Suspect Bank IFSC Code
+                    {t.report?.suspectIfsc || 'Suspect Bank IFSC Code'}
                   </label>
                   <input
                     type="text"
@@ -480,7 +566,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
 
               <div style={{ marginTop: 'var(--space-md)' }}>
                 <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                  Suspect Website, Telegram Channel, or Social Profile URL
+                  {t.report?.suspectUrl || 'Suspect Website, Telegram Channel, or Social Profile URL'}
                 </label>
                 <input
                   type="url"
@@ -500,7 +586,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                   onClick={() => setStep(1)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                 >
-                  <ArrowLeft size={18} /> Back
+                  <ArrowLeft size={18} /> {t.report?.backBtn || 'Back'}
                 </button>
                 <button
                   type="button"
@@ -508,7 +594,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                   onClick={() => setStep(3)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                 >
-                  Next: Evidence & Narrative <ArrowRight size={18} />
+                  {t.report?.nextEvidence || 'Next: Evidence & Narrative'} <ArrowRight size={18} />
                 </button>
               </div>
             </motion.div>
@@ -518,12 +604,12 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
           {step === 3 && (
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
               <h2 className="text-headline-sm" style={{ marginBottom: 'var(--space-md)', color: 'var(--color-on-surface)' }}>
-                Step 3: Narrative & Evidence Upload
+                {t.report?.step3Heading || 'Step 3: Narrative & Evidence Upload'}
               </h2>
 
               <div style={{ marginBottom: 'var(--space-lg)' }}>
                 <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                  Incident Narrative (What happened? What did they ask you to do?)
+                  {t.report?.description || 'Incident Narrative (What happened? What did they ask you to do?)'}
                 </label>
                 <textarea
                   name="description"
@@ -539,7 +625,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
               {/* Upload Dropzone */}
               <div style={{ marginBottom: 'var(--space-lg)' }}>
                 <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
-                  Attach Evidence (Screenshots of chat, payment receipts, APK files)
+                  {t.report?.evidenceHint || 'Attach Evidence (Screenshots of chat, payment receipts, APK files)'}
                 </label>
                 <input
                   type="file"
@@ -563,7 +649,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                 >
                   <Upload size={32} color="var(--color-primary)" style={{ margin: '0 auto 8px' }} />
                   <div style={{ fontWeight: 600, color: 'var(--color-primary)' }}>
-                    Click to upload evidence screenshots or PDF receipts
+                    {t.report?.uploadDropzone || 'Click to upload evidence screenshots or PDF receipts'}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--color-on-surface-variant)', marginTop: 4 }}>
                     PNG, JPG, PDF up to 25MB. Files are verified locally.
@@ -615,14 +701,16 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                     style={{ width: 18, height: 18 }}
                   />
                   <label htmlFor="isAnonymous" style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-on-surface)', cursor: 'pointer' }}>
-                    Generate Anonymous Dossier (Keep identity masked in public logs)
+                    {t.report?.anonymousCheck || 'Generate Anonymous Dossier (Keep identity masked in public logs)'}
                   </label>
                 </div>
 
                 {!formData.isAnonymous && (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-md)' }}>
                     <div>
-                      <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>Your Full Name</label>
+                      <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
+                        {t.report?.complainantName || 'Your Full Name'}
+                      </label>
                       <input
                         type="text"
                         name="victimName"
@@ -634,7 +722,9 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                       />
                     </div>
                     <div>
-                      <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>Your Contact Number</label>
+                      <label className="text-label-md" style={{ display: 'block', marginBottom: 6 }}>
+                        {t.report?.complainantPhone || 'Your Contact Number'}
+                      </label>
                       <input
                         type="tel"
                         name="victimPhone"
@@ -656,7 +746,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                   onClick={() => setStep(2)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                 >
-                  <ArrowLeft size={18} /> Back
+                  <ArrowLeft size={18} /> {t.report?.backBtn || 'Back'}
                 </button>
                 <button
                   type="button"
@@ -671,7 +761,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                     </>
                   ) : (
                     <>
-                      <Send size={18} /> Generate Police FIR Dossier
+                      <Send size={18} /> {t.report?.generateBtn || 'Generate Police FIR Dossier'}
                     </>
                   )}
                 </button>
@@ -696,7 +786,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                   <ShieldCheck size={32} color="var(--risk-safe-text)" />
                 </div>
                 <h2 className="text-headline-md" style={{ color: 'var(--color-on-surface)' }}>
-                  Incident Dossier Generated Successfully
+                  {t.report?.step4Heading || 'Incident Dossier Generated Successfully'}
                 </h2>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 6, padding: '4px 12px', background: 'var(--color-primary-fixed)', borderRadius: 9999 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary)' }}>
@@ -738,7 +828,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                   }}
                 >
                   {copied ? <Check size={14} color="#7ffc97" /> : <Copy size={14} />}
-                  {copied ? 'Copied!' : 'Copy Dossier'}
+                  {copied ? (t.report?.copied || 'Copied!') : (t.report?.copyDossier || 'Copy Dossier')}
                 </button>
 
                 <div style={{ color: '#7ffc97', fontWeight: 'bold' }}>=== SANGYAN SHIELD CYBER FRAUD INCIDENT SUMMARY ===</div>
@@ -762,7 +852,9 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                 <div style={{ padding: 'var(--space-md)', border: '1px solid var(--color-outline-variant)', borderRadius: 'var(--radius-md)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <Phone size={18} color="var(--color-primary)" />
-                    <span style={{ fontWeight: 700, fontSize: 15 }}>1. Call 1930 & Quote UTR</span>
+                    <span style={{ fontWeight: 700, fontSize: 15 }}>
+                      {t.report?.call1930Action || '1. Call 1930 & Quote UTR'}
+                    </span>
                   </div>
                   <p style={{ fontSize: 13, color: 'var(--color-on-surface-variant)', margin: 0 }}>
                     Provide the 12-digit UPI UTR or bank reference to the operator so they can raise a lien on the recipient bank account.
@@ -772,7 +864,9 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                 <div style={{ padding: 'var(--space-md)', border: '1px solid var(--color-outline-variant)', borderRadius: 'var(--radius-md)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <ExternalLink size={18} color="var(--color-primary)" />
-                    <span style={{ fontWeight: 700, fontSize: 15 }}>2. Paste into cybercrime.gov.in</span>
+                    <span style={{ fontWeight: 700, fontSize: 15 }}>
+                      {t.report?.pastePortalAction || '2. Paste into cybercrime.gov.in'}
+                    </span>
                   </div>
                   <p style={{ fontSize: 13, color: 'var(--color-on-surface-variant)', margin: 0 }}>
                     Use the copied dossier summary directly in the National Cyber Crime Reporting Portal's Citizen Complaint filing form.
@@ -780,7 +874,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-md)' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -790,7 +884,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                   }}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                 >
-                  <RefreshCw size={16} /> File Another Report
+                  <RefreshCw size={16} /> {t.report?.newReport || 'File Another Report'}
                 </button>
                 <a
                   href="https://cybercrime.gov.in"
@@ -799,7 +893,7 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                   className="btn btn-primary"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}
                 >
-                  Proceed to cybercrime.gov.in <ExternalLink size={16} />
+                  {t.report?.officialPortal || 'Proceed to cybercrime.gov.in'} <ExternalLink size={16} />
                 </a>
               </div>
             </motion.div>

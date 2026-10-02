@@ -1,24 +1,45 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Shield, ShieldCheck, ShieldX, ShieldAlert, Search, Filter,
-  Calendar, ArrowRight, CheckCircle, AlertTriangle, Ban,
-  CircleAlert, Download, Clock, ChevronDown
+  Shield, ShieldCheck, ShieldX, ShieldAlert, Search,
+  CheckCircle, AlertTriangle,
+  CircleAlert, Download, Clock
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
+import { useLanguage } from '../context/LanguageContext'
 
 const HISTORY_DATA = [
-  { id: 1, type: 'UPI Handle', target: 'paytm-refund-support@ybl', risk: 98, status: 'Flagged', date: '2 Oct 2025, 3:42 PM', riskLevel: 'critical' },
-  { id: 2, type: 'Telegram Channel', target: 'XYZ Global FX Trading', risk: 94, status: 'Flagged Scam', date: '2 Oct 2025, 3:18 PM', riskLevel: 'high' },
-  { id: 3, type: 'Phishing Link', target: 'sebi-online-kyc-verify.in', risk: 98, status: 'Domain Blacklisted', date: '2 Oct 2025, 2:30 PM', riskLevel: 'critical' },
-  { id: 4, type: 'AMFI Distributor', target: 'ABC Mutual Fund Agency (ARN-88321)', risk: 10, status: 'Identity Confirmed', date: '2 Oct 2025, 1:15 PM', riskLevel: 'safe' },
-  { id: 5, type: 'WhatsApp Forward', target: 'Crypto Mining Pool - Guaranteed 200% ROI', risk: 91, status: 'Ponzi Pattern', date: '1 Oct 2025, 11:00 PM', riskLevel: 'high' },
-  { id: 6, type: 'SMS Sender', target: 'VK-SBIINB Official Alert', risk: 5, status: 'Legitimate Bank', date: '1 Oct 2025, 9:22 PM', riskLevel: 'safe' },
-  { id: 7, type: 'APK Download', target: 'bharat-pro-trader-v3.2.apk', risk: 99, status: 'Malware Detected', date: '1 Oct 2025, 6:45 PM', riskLevel: 'critical' },
-  { id: 8, type: 'SEBI Registration', target: 'INA000012345 - Forex Advisor', risk: 87, status: 'Barred Entity', date: '1 Oct 2025, 4:30 PM', riskLevel: 'high' },
+  { id: 1, typeKey: 'upi', type: 'UPI Handle', target: 'paytm-refund-support@ybl', risk: 98, statusKey: 'flagged', status: 'Flagged', date: '2 Oct 2025, 3:42 PM', riskLevel: 'critical' },
+  { id: 2, typeKey: 'telegram', type: 'Telegram Channel', target: 'XYZ Global FX Trading', risk: 94, statusKey: 'flaggedScam', status: 'Flagged Scam', date: '2 Oct 2025, 3:18 PM', riskLevel: 'high' },
+  { id: 3, typeKey: 'phishing', type: 'Phishing Link', target: 'sebi-online-kyc-verify.in', risk: 98, statusKey: 'domainBlacklisted', status: 'Domain Blacklisted', date: '2 Oct 2025, 2:30 PM', riskLevel: 'critical' },
+  { id: 4, typeKey: 'amfi', type: 'AMFI Distributor', target: 'ABC Mutual Fund Agency (ARN-88321)', risk: 10, statusKey: 'identityConfirmed', status: 'Identity Confirmed', date: '2 Oct 2025, 1:15 PM', riskLevel: 'safe' },
+  { id: 5, typeKey: 'whatsapp', type: 'WhatsApp Forward', target: 'Crypto Mining Pool - Guaranteed 200% ROI', risk: 91, statusKey: 'ponziPattern', status: 'Ponzi Pattern', date: '1 Oct 2025, 11:00 PM', riskLevel: 'high' },
+  { id: 6, typeKey: 'sms', type: 'SMS Sender', target: 'VK-SBIINB Official Alert', risk: 5, statusKey: 'legitimateBank', status: 'Legitimate Bank', date: '1 Oct 2025, 9:22 PM', riskLevel: 'safe' },
+  { id: 7, typeKey: 'apk', type: 'APK Download', target: 'bharat-pro-trader-v3.2.apk', risk: 99, statusKey: 'malwareDetected', status: 'Malware Detected', date: '1 Oct 2025, 6:45 PM', riskLevel: 'critical' },
+  { id: 8, typeKey: 'sebi', type: 'SEBI Registration', target: 'INA000012345 - Forex Advisor', risk: 87, statusKey: 'barredEntity', status: 'Barred Entity', date: '1 Oct 2025, 4:30 PM', riskLevel: 'high' },
 ]
 
-const FILTERS = ['All', 'Critical', 'High Risk', 'Safe']
+const TYPE_TRANSLATIONS = {
+  upi: { en: 'UPI Handle', hi: 'यूपीआई हैंडल', mr: 'यूपीआई हँडल', bn: 'ইউপিআই হ্যান্ডেল', te: 'యూపీఐ హ్యాండిల్', ta: 'யுபிஐ கைப்பிடி', gu: 'યુપીઆઈ હેન્ડલ', kn: 'ಯುಪಿಐ ಹ್ಯಾಂಡಲ್' },
+  telegram: { en: 'Telegram Channel', hi: 'टेलीग्राम चैनल', mr: 'टेलिग्राम चॅनेल', bn: 'টেলিগ্রাম চ্যানেল', te: 'టెలిగ్రామ్ ఛానల్', ta: 'டெலிகிராம் சேனல்', gu: 'ટેલિગ્રામ ચેનલ', kn: 'ಟೆಲಿಗ್ರಾಂ ಚಾನಲ್' },
+  phishing: { en: 'Phishing Link', hi: 'फ़िशिंग लिंक', mr: 'फिशिंग लिंक', bn: 'ফিশিং লিঙ্ক', te: 'ఫిషింగ్ లింక్', ta: 'ஃபிஷிங் இணைப்பு', gu: 'ફિશિંગ લિંક', kn: 'ಫಿಶಿಂಗ್ ಲಿಂಕ್' },
+  amfi: { en: 'AMFI Distributor', hi: 'एएमएफआई वितरक', mr: 'एएमएफआय वितरक', bn: 'এএমএফআই পরিবেশক', te: 'ఏఎంఎఫ్ఐ పంపిణీదారు', ta: 'ஏஎம்எஃப்ஐ விநியோகஸ்தர்', gu: 'એએમએફઆઈ ડિસ્ટ્રિબ્યુટર', kn: 'ಎಎಂಎಫ್‌ಐ ವಿತರಕರು' },
+  whatsapp: { en: 'WhatsApp Forward', hi: 'व्हाट्सएप फॉरवर्ड', mr: 'व्हॉट्सअ‍ॅप फॉरवर्ड', bn: 'হোয়াটসঅ্যাপ ফরোয়ার্ড', te: 'వాట్సాప్ ఫార్వర్డ్', ta: 'வாட்ஸ்அப் பகிர்தல்', gu: 'વોટ્સએપ ફોરવર્ડ', kn: 'ವಾಟ್ಸಾಪ್ ಫಾರ್ವರ್ಡ್' },
+  sms: { en: 'SMS Sender', hi: 'एसएमएस प्रेषक', mr: 'एसएमएस प्रेषक', bn: 'এসএমএস প্রেরক', te: 'ఎస్ఎంఎస్ పంపినవారు', ta: 'எஸ்எம்எஸ் அனுப்புநர்', gu: 'એસએમએસ મોકલનાર', kn: 'ಎಸ್ಎಂಎಸ್ ಕಳುಹಿಸುವವರು' },
+  apk: { en: 'APK Download', hi: 'एपीके डाउनलोड', mr: 'एपीके डाऊनलोड', bn: 'এপিকে ডাউনলোড', te: 'ఏపీకే డౌన్‌లోడ్', ta: 'ஏபிகே பதிவிறக்கம்', gu: 'એપીકે ડાઉનલોડ', kn: 'ಎಪಿಕೆ ಡೌನ್‌ಲೋಡ್' },
+  sebi: { en: 'SEBI Registration', hi: 'सेबी पंजीकरण', mr: 'सेबी नोंदणी', bn: 'সেবি নিবন্ধন', te: 'సెబీ నమోదు', ta: 'செபி பதிவு', gu: 'સેબી નોંધણી', kn: 'ಸೆಬಿ ನೋಂದಣಿ' },
+}
+
+const STATUS_TRANSLATIONS = {
+  flagged: { en: 'Flagged', hi: 'चिह्नित', mr: 'फ्लॅग केलेले', bn: 'পতাকাকৃত', te: 'ఫ్లాగ్ చేయబడింది', ta: 'கொடியிடப்பட்டது', gu: 'ફ્લેગ કરેલ', kn: 'ಫ್ಲ್ಯಾಗ್ ಮಾಡಲಾಗಿದೆ' },
+  flaggedScam: { en: 'Flagged Scam', hi: 'घोटाला चिह्नित', mr: 'घोटाळा घोषित', bn: 'প্রতারণা চিহ্নিত', te: 'మోసంగా గుర్తించబడింది', ta: 'மோசடி கொடியிடப்பட்டது', gu: 'કૌભાંડ ચિહ્નિત', kn: 'ವಂಚನೆ ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ' },
+  domainBlacklisted: { en: 'Domain Blacklisted', hi: 'डोमेन ब्लॉक', mr: 'डोमेन प्रतिबंधित', bn: 'ডোমেন নিষিদ্ধ', te: 'డొమైన్ బ్లాక్‌లిస్ట్ చేయబడింది', ta: 'டொமைன் தடைசெய்யப்பட்டது', gu: 'ડોમેન બ્લેકલિસ્ટ', kn: 'ಡೊಮೇನ್ ಕಪ್ಪುಪಟ್ಟಿಗೆ ಸೇರಿಸಲಾಗಿದೆ' },
+  identityConfirmed: { en: 'Identity Confirmed', hi: 'सत्यापित वैध', mr: 'ओळख सत्यापित', bn: 'পরিচয় নিশ্চিত', te: 'గుర్తింపు ధృవీకరించబడింది', ta: 'அடையாளம் உறுதிசெய்யப்பட்டது', gu: 'ઓળખ પુષ્ટિ થઈ', kn: 'ಗುರುತು ದೃಢಪಟ್ಟಿದೆ' },
+  ponziPattern: { en: 'Ponzi Pattern', hi: 'पोंजी पैटर्न', mr: 'पोंझी नमुना', bn: 'পনজি প্যাটার্ন', te: 'పోంజీ నమూనా', ta: 'பொன்சி வடிவம்', gu: 'પોન્ઝી પેટર્ન', kn: 'ಪೊಂಜಿ ಮಾದರಿ' },
+  legitimateBank: { en: 'Legitimate Bank', hi: 'वैध बैंक', mr: 'अधिकृत बँक', bn: 'বৈধ ব্যাংক', te: 'చట్టబద్ధమైన బ్యాంక్', ta: 'சட்டபூர்வமான வங்கி', gu: 'કાયદેસર બેંક', kn: 'ಅಧಿಕೃತ ಬ್ಯಾಂಕ್' },
+  malwareDetected: { en: 'Malware Detected', hi: 'मैलवेयर मिला', mr: 'मालवेअर आढळले', bn: 'ম্যালওয়্যার সনাক্ত', te: 'మాల్వೇర్ గుర్తించబడింది', ta: 'மால்வேர் கண்டறியப்பட்டது', gu: 'માલવેર મળ્યું', kn: 'ಮಾಲ್ವೇರ್ ಪತ್ತೆಯಾಗಿದೆ' },
+  barredEntity: { en: 'Barred Entity', hi: 'प्रतिबंधित संस्था', mr: 'प्रतिबंधित संस्था', bn: 'নিষিদ্ধ সত্ত্বা', te: 'నిషేధించబడిన సంస్థ', ta: 'தடைசெய்யப்பட்ட நிறுவனம்', gu: 'પ્રતિબંધિત એકમ', kn: 'ನಿಷೇಧಿತ ಘಟಕ' },
+}
 
 const getRiskBadge = (level) => {
   const config = {
@@ -30,17 +51,45 @@ const getRiskBadge = (level) => {
 }
 
 export default function HistoryPage() {
+  const { t, currentLang } = useLanguage()
+  const lang = currentLang || 'en'
   const [filter, setFilter] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
+
+  const filters = [
+    { key: 'All', label: t.history?.filterAll || 'All' },
+    { key: 'Critical', label: t.history?.filterCritical || 'Critical' },
+    { key: 'High Risk', label: t.history?.filterHigh || 'High Risk' },
+    { key: 'Safe', label: t.history?.filterSafe || 'Safe' },
+  ]
 
   const filtered = HISTORY_DATA.filter(item => {
     if (filter === 'Critical') return item.riskLevel === 'critical'
     if (filter === 'High Risk') return item.riskLevel === 'high'
     if (filter === 'Safe') return item.riskLevel === 'safe'
     return true
-  }).filter(item =>
-    searchQuery === '' || item.target.toLowerCase().includes(searchQuery.toLowerCase()) || item.type.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  }).filter(item => {
+    const localizedType = (TYPE_TRANSLATIONS[item.typeKey] && TYPE_TRANSLATIONS[item.typeKey][lang]) || item.type
+    return (
+      searchQuery === '' ||
+      item.target.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      localizedType.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })
+
+  const handleExportCsv = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "ID,Type,Target,Risk Score,Status,Date\n"
+      + HISTORY_DATA.map(e => `${e.id},${e.type},"${e.target}",${e.risk},${e.status},"${e.date}"`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "sangyan_audit_history.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   return (
     <PageTransition>
@@ -51,32 +100,38 @@ export default function HistoryPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', marginBottom: 4 }}>
               <Clock size={16} style={{ color: 'var(--color-primary)' }} />
               <span className="text-label-sm" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-primary)', fontWeight: 700 }}>
-                Verification Audit Trail
+                {t.history?.tag || 'VERIFICATION AUDIT TRAIL'}
               </span>
             </div>
-            <h1 className="text-headline-lg" style={{ color: 'var(--color-on-surface)' }}>Verification History</h1>
+            <h1 className="text-headline-lg" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+              {t.history?.title || 'Verification History'}
+            </h1>
             <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginTop: 4 }}>
-              Complete record of all scam checks, identity verifications, and threat assessments performed.
+              {t.history?.desc || 'Complete record of all scam checks, identity verifications, and threat assessments performed.'}
             </p>
           </div>
-          <button style={{
-            display: 'flex', alignItems: 'center', gap: 'var(--space-xs)',
-            padding: '10px 20px', borderRadius: 'var(--radius-lg)',
-            background: 'var(--color-surface-container)', color: 'var(--color-on-surface)',
-            fontWeight: 600, fontSize: 13,
-          }}>
+          <button
+            onClick={handleExportCsv}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 'var(--space-xs)',
+              padding: '10px 20px', borderRadius: 'var(--radius-lg)',
+              background: 'var(--color-surface-container)', color: 'var(--color-on-surface)',
+              fontWeight: 600, fontSize: 13, border: '1px solid var(--color-outline-variant)',
+              cursor: 'pointer'
+            }}
+          >
             <Download size={16} />
-            <span>Export CSV</span>
+            <span>{t.history?.exportCsv || 'Export CSV'}</span>
           </button>
         </div>
 
         {/* Summary Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-md)', marginBottom: 'var(--space-lg)' }}>
           {[
-            { label: 'Total Scans', value: '1,429,812', icon: Shield, color: 'var(--color-primary)' },
-            { label: 'Threats Blocked', value: '320,184', icon: ShieldX, color: 'var(--color-error)' },
-            { label: 'Verified Safe', value: '1,109,628', icon: ShieldCheck, color: 'var(--color-tertiary)' },
-            { label: 'Avg Risk Score', value: '67.3', icon: ShieldAlert, color: 'var(--color-secondary)' },
+            { label: t.history?.totalScans || 'Total Scans', value: '1,429,812', icon: Shield, color: 'var(--color-primary)' },
+            { label: t.history?.threatsBlocked || 'Threats Blocked', value: '320,184', icon: ShieldX, color: 'var(--color-error)' },
+            { label: t.history?.verifiedSafe || 'Verified Safe', value: '1,109,628', icon: ShieldCheck, color: 'var(--color-tertiary)' },
+            { label: t.history?.avgRiskScore || 'Avg Risk Score', value: '67.3', icon: ShieldAlert, color: 'var(--color-secondary)' },
           ].map(card => (
             <motion.div
               key={card.label}
@@ -87,6 +142,7 @@ export default function HistoryPage() {
                 padding: 'var(--space-lg)', borderRadius: 'var(--radius-xl)',
                 background: 'var(--color-surface-container-lowest)', boxShadow: 'var(--shadow-card)',
                 display: 'flex', alignItems: 'center', gap: 'var(--space-md)',
+                border: '1px solid rgba(196,197,215,0.4)'
               }}
             >
               <div style={{
@@ -107,14 +163,20 @@ export default function HistoryPage() {
         {/* Filters & Search */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
           <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
-            {FILTERS.map(f => (
-              <button key={f} onClick={() => setFilter(f)} className="text-label-md" style={{
-                padding: '6px 16px', borderRadius: 'var(--radius-full)',
-                background: filter === f ? 'var(--color-primary)' : 'var(--color-surface-container)',
-                color: filter === f ? 'var(--color-on-primary)' : 'var(--color-on-surface-variant)',
-                fontWeight: filter === f ? 700 : 500, transition: 'all 0.2s',
-              }}>
-                {f}
+            {filters.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className="text-label-md"
+                style={{
+                  padding: '6px 16px', borderRadius: 'var(--radius-full)',
+                  background: filter === f.key ? 'var(--color-primary)' : 'var(--color-surface-container)',
+                  color: filter === f.key ? 'var(--color-on-primary)' : 'var(--color-on-surface-variant)',
+                  fontWeight: filter === f.key ? 700 : 500, transition: 'all 0.2s',
+                  border: 'none', cursor: 'pointer'
+                }}
+              >
+                {f.label}
               </button>
             ))}
           </div>
@@ -124,12 +186,12 @@ export default function HistoryPage() {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search verifications..."
+              placeholder={t.history?.searchPlaceholder || 'Search verifications...'}
               className="text-body-sm"
               style={{
                 width: '100%', paddingLeft: 36, padding: '8px 12px 8px 36px',
                 borderRadius: 'var(--radius-full)', background: 'var(--color-surface-container-low)',
-                color: 'var(--color-on-surface)',
+                color: 'var(--color-on-surface)', border: '1px solid var(--color-outline-variant)'
               }}
             />
           </div>
@@ -138,28 +200,41 @@ export default function HistoryPage() {
         {/* Table Container */}
         <div style={{
           background: 'var(--color-surface-container-lowest)', borderRadius: 'var(--radius-xl)',
-          boxShadow: 'var(--shadow-card)', overflow: 'hidden',
+          boxShadow: 'var(--shadow-card)', overflow: 'hidden', border: '1px solid rgba(196,197,215,0.4)'
         }}>
           <div className="table-scroll-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <div className="table-inner" style={{ minWidth: 620 }}>
               {/* Header Row */}
               <div style={{
-                display: 'grid', gridTemplateColumns: '130px 1fr 90px 130px 140px',
+                display: 'grid', gridTemplateColumns: '130px 1fr 90px 140px 140px',
                 gap: 'var(--space-md)', padding: 'var(--space-md) var(--space-lg)',
                 borderBottom: '1px solid var(--color-surface-container)',
                 background: 'var(--color-surface-container-low)',
               }} className="text-label-sm table-header">
-                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Type</span>
-                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Target</span>
-                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Risk</span>
-                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Status</span>
-                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Date</span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>
+                  {t.history?.thType || 'Type'}
+                </span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>
+                  {t.history?.thTarget || 'Target'}
+                </span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>
+                  {t.history?.thRisk || 'Risk'}
+                </span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>
+                  {t.history?.thStatus || 'Status'}
+                </span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>
+                  {t.history?.thDate || 'Date'}
+                </span>
               </div>
 
               {/* Rows */}
               {filtered.map((item, i) => {
                 const badge = getRiskBadge(item.riskLevel)
                 const BadgeIcon = badge.icon
+                const localizedType = (TYPE_TRANSLATIONS[item.typeKey] && TYPE_TRANSLATIONS[item.typeKey][lang]) || item.type
+                const localizedStatus = (STATUS_TRANSLATIONS[item.statusKey] && STATUS_TRANSLATIONS[item.statusKey][lang]) || item.status
+
                 return (
                   <motion.div
                     key={item.id}
@@ -167,7 +242,7 @@ export default function HistoryPage() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05, duration: 0.3 }}
                     style={{
-                      display: 'grid', gridTemplateColumns: '130px 1fr 90px 130px 140px',
+                      display: 'grid', gridTemplateColumns: '130px 1fr 90px 140px 140px',
                       gap: 'var(--space-md)', padding: 'var(--space-md) var(--space-lg)',
                       borderBottom: '1px solid var(--color-surface-container-low)',
                       alignItems: 'center', transition: 'background 0.15s', cursor: 'pointer',
@@ -176,7 +251,9 @@ export default function HistoryPage() {
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-container-low)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
-                    <span className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', fontSize: 13 }}>{item.type}</span>
+                    <span className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', fontSize: 13 }}>
+                      {localizedType}
+                    </span>
                     <span className="text-body-sm" style={{ fontWeight: 600, color: 'var(--color-on-surface)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.target}
                     </span>
@@ -200,7 +277,7 @@ export default function HistoryPage() {
                       background: badge.bg, color: badge.color, fontWeight: 700,
                       fontSize: 11, whiteSpace: 'nowrap',
                     }}>
-                      <BadgeIcon size={11} /> {item.status}
+                      <BadgeIcon size={11} /> {localizedStatus}
                     </span>
                     <span className="text-label-sm" style={{ color: 'var(--color-outline)', fontSize: 12 }}>{item.date}</span>
                   </motion.div>
@@ -212,7 +289,7 @@ export default function HistoryPage() {
           {filtered.length === 0 && (
             <div style={{ padding: 'var(--space-xl)', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
               <Search size={32} style={{ opacity: 0.3, margin: '0 auto 8px' }} />
-              <p className="text-body-md">No results found for your search criteria.</p>
+              <p className="text-body-md">{t.history?.noResults || 'No results found for your search criteria.'}</p>
             </div>
           )}
         </div>
