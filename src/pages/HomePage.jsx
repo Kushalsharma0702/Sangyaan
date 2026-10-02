@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
@@ -9,8 +9,6 @@ import {
   CheckCircle, TrendingUp, Phone
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
-
-const Shield3D = lazy(() => import('../components/Shield3D'))
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -126,14 +124,12 @@ export default function HomePage() {
         <div style={{ position: 'absolute', bottom: -40, right: '10%', width: 340, height: 340, background: 'rgba(98,223,125,0.1)', borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
         <div className="container-max" style={{ position: 'relative' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 'var(--gutter)', alignItems: 'center' }} className="hero-grid">
-            {/* Left Column */}
-            <motion.div {...fadeUp()} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', zIndex: 10 }}>
+          <div style={{ maxWidth: 840, margin: '0 auto', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)' }}>
+            <motion.div {...fadeUp()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)', zIndex: 10 }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
-                padding: '4px 12px', borderRadius: 'var(--radius-full)',
+                padding: '4px 14px', borderRadius: 'var(--radius-full)',
                 background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)',
-                alignSelf: 'flex-start',
               }}>
                 <ShieldCheck size={16} style={{ color: 'var(--color-tertiary-fixed)' }} />
                 <span className="text-label-sm" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
@@ -141,23 +137,23 @@ export default function HomePage() {
                 </span>
               </div>
 
-              <h1 className="text-display-hero hero-title-responsive" style={{ color: 'var(--color-on-primary)', fontWeight: 800, fontSize: 'clamp(1.5rem, 4.2vw, 2.75rem)', lineHeight: 1.25 }}>
+              <h1 className="text-display-hero hero-title-responsive" style={{ color: 'var(--color-on-primary)', fontWeight: 800, fontSize: 'clamp(1.6rem, 4.2vw, 2.85rem)', lineHeight: 1.25, maxWidth: 760 }}>
                 संदेश, लिंक या निवेश सलाह की जांच करें धोखाधड़ी से पहले!
               </h1>
 
-              <p className="text-body-lg" style={{ color: 'var(--color-primary-fixed)', fontWeight: 500, fontSize: 'clamp(1rem, 2.5vw, 1.15rem)' }}>
+              <p className="text-body-lg" style={{ color: 'var(--color-primary-fixed)', fontWeight: 600, fontSize: 'clamp(1rem, 2.5vw, 1.2rem)' }}>
                 AI-powered verification for safer and smarter India
               </p>
-              <p className="text-body-md" style={{ color: 'rgba(183,196,255,0.85)', maxWidth: 560, fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
+              <p className="text-body-md" style={{ color: 'rgba(183,196,255,0.9)', maxWidth: 640, fontSize: 'clamp(0.875rem, 2vw, 1.05rem)', lineHeight: 1.6 }}>
                 Verify WhatsApp forwards, Telegram trading tips, SEBI numbers, and UPI handles before making any payment. Instant zero-trust telemetry for every citizen.
               </p>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-sm)', paddingTop: 'var(--space-xs)' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 'var(--space-sm)', paddingTop: 'var(--space-xs)' }}>
                 <Link
                   to="/verify"
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
-                    padding: '12px 20px', borderRadius: 'var(--radius-xl)',
+                    padding: '12px 24px', borderRadius: 'var(--radius-xl)',
                     background: 'var(--color-surface-container-lowest)', color: 'var(--color-primary)',
                     fontWeight: 700, fontSize: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
                     transition: 'all 0.2s', textDecoration: 'none'
@@ -172,7 +168,7 @@ export default function HomePage() {
                   onClick={() => navigate('/learn')}
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
-                    padding: '12px 20px', borderRadius: 'var(--radius-xl)',
+                    padding: '12px 24px', borderRadius: 'var(--radius-xl)',
                     background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)',
                     color: 'var(--color-on-primary)', fontWeight: 600, fontSize: 14,
                     transition: 'background 0.2s', border: '1px solid rgba(255,255,255,0.25)',
@@ -185,84 +181,18 @@ export default function HomePage() {
               </div>
 
               {/* Trust metrics */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', paddingTop: 'var(--space-sm)' }} className="text-label-sm">
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '12px', paddingTop: 'var(--space-sm)' }} className="text-label-sm">
                 {[
                   { icon: Verified, label: '3.2 Lakh+ Scams Flagged' },
                   { icon: Wallet, label: '₹42 Cr Protected' },
                   { icon: Handshake, label: '100% Free for Citizens' },
                 ].map((item, i) => (
-                  <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(183,196,255,0.9)' }}>
+                  <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(183,196,255,0.95)' }}>
                     {i > 0 && <span style={{ opacity: 0.4, margin: '0 4px' }}>•</span>}
                     <item.icon size={16} style={{ color: 'var(--color-tertiary-fixed)' }} />
                     {item.label}
                   </span>
                 ))}
-              </div>
-            </motion.div>
-
-            {/* Right Column - 3D Shield */}
-            <motion.div {...fadeUp(0.2)} className="hero-3d-col" style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <div style={{
-                position: 'relative', width: '100%', maxWidth: 460,
-                borderRadius: 'var(--radius-xl)', padding: 12,
-                background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)',
-                boxShadow: '0 16px 48px rgba(0,0,0,0.15)',
-              }}>
-                <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: 'rgba(255,255,255,0.03)', aspectRatio: '4/3.5' }}>
-                  <Suspense fallback={
-                    <div style={{ width: '100%', height: '100%', minHeight: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <div className="shimmer" style={{ width: '100%', height: '100%', borderRadius: 'var(--radius-lg)' }} />
-                    </div>
-                  }>
-                    <Shield3D />
-                  </Suspense>
-                </div>
-
-                {/* Floating badge - top right */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8, duration: 0.5 }}
-                  style={{
-                    position: 'absolute', top: 20, right: 20,
-                    background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
-                    color: 'var(--color-on-surface)', padding: '8px 14px',
-                    borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-card)',
-                    display: 'flex', alignItems: 'center', gap: 8,
-                  }}
-                >
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-tertiary)', animation: 'pulse-ring 2s infinite' }} />
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span className="text-label-sm" style={{ fontWeight: 700, color: 'var(--color-primary)' }}>SEBI Verification</span>
-                    <span className="text-label-sm" style={{ color: 'var(--color-tertiary)', fontWeight: 600 }}>Instant Telemetry</span>
-                  </div>
-                </motion.div>
-
-                {/* Floating badge - bottom left */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1, duration: 0.5 }}
-                  style={{
-                    position: 'absolute', bottom: 20, left: 20,
-                    background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
-                    color: 'var(--color-on-surface)', padding: '8px 14px',
-                    borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-card)',
-                    display: 'flex', alignItems: 'center', gap: 10,
-                  }}
-                >
-                  <div style={{
-                    padding: 6, borderRadius: 'var(--radius-default)',
-                    background: 'var(--color-primary-container)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Shield size={16} color="var(--color-on-primary)" />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span className="text-label-sm" style={{ fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Fake UPI Detection</span>
-                    <span className="text-headline-sm" style={{ color: 'var(--color-primary)', fontWeight: 700, lineHeight: 1 }}>99.4% Accuracy</span>
-                  </div>
-                </motion.div>
               </div>
             </motion.div>
           </div>
@@ -574,17 +504,11 @@ export default function HomePage() {
       </section>
 
       <style>{`
-        .hero-grid { grid-template-columns: 7fr 5fr; }
-        @media (max-width: 991px) {
-          .hero-grid { grid-template-columns: 1fr; }
-          .hero-3d-col { order: -1; max-width: 320px; margin: 0 auto; }
-        }
         .verify-input-bar { flex-direction: row; }
         @media (max-width: 640px) {
           .verify-input-bar { flex-direction: column; gap: 8px; padding: 8px; }
           .verify-input-bar button { width: 100%; justify-content: center; }
           .paste-label { display: none; }
-          .hero-3d-col { max-width: 260px; }
         }
       `}</style>
     </PageTransition>
