@@ -186,11 +186,24 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
     setTimeout(() => setCopied(false), 2500)
   }
 
+  const STEP_SHORT_TITLES = {
+    en: ['Category', 'Suspect', 'Evidence', 'Dossier'],
+    hi: ['श्रेणी', 'संदिग्ध', 'साक्ष्य', 'डोजियर'],
+    mr: ['प्रकार', 'संशयित', 'पुरावे', 'अहवाल'],
+    bn: ['বিভাগ', 'সন্দেহভাজন', 'প্রমাণ', 'ডজিয়ার'],
+    te: ['వర్గం', 'అనుమానితుడు', 'సాక్ష్యం', 'డోసియర్'],
+    ta: ['வகை', 'சந்தேகநபர்', 'சான்று', 'ஆவணம்'],
+    gu: ['શ્રેણી', 'શંકાસ્પદ', 'પુરાવા', 'ડોઝિયર'],
+    kn: ['ವರ್ಗ', 'ಅನುಮಾನಿತ', 'ಸಾಕ್ಷಿ', 'ದಾಖಲೆ'],
+  }
+
+  const shortTitles = STEP_SHORT_TITLES[lang] || STEP_SHORT_TITLES.en
+
   const stepLabels = [
-    { num: 1, title: t.report?.step1 || 'Category' },
-    { num: 2, title: t.report?.step2 || 'Suspect' },
-    { num: 3, title: t.report?.step3 || 'Evidence' },
-    { num: 4, title: t.report?.step4 || 'Dossier' },
+    { num: 1, shortTitle: shortTitles[0], fullTitle: t.report?.step1 || 'Category' },
+    { num: 2, shortTitle: shortTitles[1], fullTitle: t.report?.step2 || 'Suspect' },
+    { num: 3, shortTitle: shortTitles[2], fullTitle: t.report?.step3 || 'Evidence' },
+    { num: 4, shortTitle: shortTitles[3], fullTitle: t.report?.step4 || 'Dossier' },
   ]
 
   return (
@@ -306,55 +319,122 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
         </div>
 
         {/* Multi-Step Progress Tracker */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 'var(--space-xl)', overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: '4px 0' }} className="step-tracker-container">
-          {stepLabels.map((item, idx, arr) => (
-            <div key={item.num} style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div
-                  className="step-circle"
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: step === item.num
-                      ? 'var(--color-primary)'
-                      : step > item.num
-                      ? 'var(--risk-safe-text)'
-                      : 'var(--color-surface-container-high)',
-                    color: step >= item.num ? '#ffffff' : 'var(--color-outline)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: 13,
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  {step > item.num ? <Check size={16} /> : item.num}
+        <div style={{ marginBottom: 'var(--space-xl)', width: '100%' }}>
+          {/* Active Step Indicator Pill for Mobile */}
+          <div style={{ textAlign: 'center', marginBottom: 12 }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 12,
+              fontWeight: 700,
+              padding: '4px 14px',
+              background: 'var(--color-primary-fixed)',
+              color: 'var(--color-primary)',
+              borderRadius: 9999
+            }}>
+              <span>{`Step ${step} / 4:`}</span>
+              <span style={{ fontWeight: 600 }}>{stepLabels[step - 1]?.fullTitle}</span>
+            </span>
+          </div>
+
+          <div
+            className="step-tracker-scroll-wrapper"
+            style={{
+              width: '100%',
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              padding: '4px 8px 10px',
+              boxSizing: 'border-box'
+            }}
+          >
+            <div
+              className="step-tracker-inner"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+                maxWidth: 480,
+                minWidth: 260,
+                margin: '0 auto',
+                boxSizing: 'border-box'
+              }}
+            >
+              {stepLabels.map((item, idx) => (
+                <div key={item.num} style={{ display: 'contents' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (item.num < step) setStep(item.num)
+                    }}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 4,
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: item.num < step ? 'pointer' : 'default',
+                      flexShrink: 0
+                    }}
+                  >
+                    <div
+                      className="step-circle"
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        background: step === item.num
+                          ? 'var(--color-primary)'
+                          : step > item.num
+                          ? 'var(--risk-safe-text)'
+                          : 'var(--color-surface-container-high)',
+                        color: step >= item.num ? '#ffffff' : 'var(--color-outline)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 700,
+                        fontSize: 13,
+                        boxShadow: step === item.num ? '0 0 0 4px rgba(0, 55, 177, 0.16)' : 'none',
+                        transition: 'all 0.25s ease'
+                      }}
+                    >
+                      {step > item.num ? <Check size={16} strokeWidth={2.5} /> : item.num}
+                    </div>
+                    <span
+                      className="step-title"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: step === item.num ? 700 : 500,
+                        color: step === item.num ? 'var(--color-primary)' : 'var(--color-on-surface-variant)',
+                        textAlign: 'center',
+                        maxWidth: 64,
+                        lineHeight: 1.2
+                      }}
+                    >
+                      {item.shortTitle}
+                    </span>
+                  </button>
+
+                  {idx < stepLabels.length - 1 && (
+                    <div
+                      className="step-line"
+                      style={{
+                        flex: 1,
+                        height: 2,
+                        minWidth: 14,
+                        background: step > item.num ? 'var(--risk-safe-text)' : 'var(--color-outline-variant)',
+                        margin: '0 6px 18px 6px',
+                        transition: 'background 0.3s ease'
+                      }}
+                    />
+                  )}
                 </div>
-                <span className="step-title" style={{
-                  fontSize: 11,
-                  fontWeight: step === item.num ? 700 : 500,
-                  color: step === item.num ? 'var(--color-primary)' : 'var(--color-on-surface-variant)',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {item.title}
-                </span>
-              </div>
-              {idx < arr.length - 1 && (
-                <div
-                  className="step-line"
-                  style={{
-                    width: 'clamp(14px, 4vw, 48px)',
-                    height: 2,
-                    background: step > item.num ? 'var(--risk-safe-text)' : 'var(--color-outline-variant)',
-                    margin: '0 8px 18px 8px',
-                    flexShrink: 0
-                  }}
-                />
-              )}
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Form Container Card */}
