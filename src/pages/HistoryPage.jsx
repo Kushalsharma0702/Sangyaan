@@ -135,75 +135,79 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {/* Table */}
+        {/* Table Container */}
         <div style={{
           background: 'var(--color-surface-container-lowest)', borderRadius: 'var(--radius-xl)',
           boxShadow: 'var(--shadow-card)', overflow: 'hidden',
         }}>
-          {/* Header Row */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '140px 1fr 100px 140px 160px',
-            gap: 'var(--space-md)', padding: 'var(--space-md) var(--space-lg)',
-            borderBottom: '1px solid var(--color-surface-container)',
-            background: 'var(--color-surface-container-low)',
-          }} className="text-label-sm table-header">
-            <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Type</span>
-            <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Target</span>
-            <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Risk</span>
-            <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Status</span>
-            <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Date</span>
-          </div>
+          <div className="table-scroll-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div className="table-inner" style={{ minWidth: 620 }}>
+              {/* Header Row */}
+              <div style={{
+                display: 'grid', gridTemplateColumns: '130px 1fr 90px 130px 140px',
+                gap: 'var(--space-md)', padding: 'var(--space-md) var(--space-lg)',
+                borderBottom: '1px solid var(--color-surface-container)',
+                background: 'var(--color-surface-container-low)',
+              }} className="text-label-sm table-header">
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Type</span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Target</span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Risk</span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Status</span>
+                <span style={{ fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase' }}>Date</span>
+              </div>
 
-          {/* Rows */}
-          {filtered.map((item, i) => {
-            const badge = getRiskBadge(item.riskLevel)
-            const BadgeIcon = badge.icon
-            return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.3 }}
-                style={{
-                  display: 'grid', gridTemplateColumns: '140px 1fr 100px 140px 160px',
-                  gap: 'var(--space-md)', padding: 'var(--space-md) var(--space-lg)',
-                  borderBottom: '1px solid var(--color-surface-container-low)',
-                  alignItems: 'center', transition: 'background 0.15s', cursor: 'pointer',
-                }}
-                className="table-row"
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-container-low)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <span className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>{item.type}</span>
-                <span className="text-body-sm" style={{ fontWeight: 600, color: 'var(--color-on-surface)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {item.target}
-                </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <div style={{
-                    width: 32, height: 6, borderRadius: 'var(--radius-full)',
-                    background: 'var(--color-surface-container-high)', overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      width: `${item.risk}%`, height: '100%', borderRadius: 'var(--radius-full)',
-                      background: item.riskLevel === 'safe' ? 'var(--color-tertiary)' : item.risk > 90 ? 'var(--color-error)' : 'var(--risk-caution-text)',
-                    }} />
-                  </div>
-                  <span className="text-data-mono" style={{ fontWeight: 600, color: item.riskLevel === 'safe' ? 'var(--color-tertiary)' : 'var(--color-error)' }}>
-                    {item.risk}
-                  </span>
-                </div>
-                <span className="text-label-sm" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  padding: '3px 8px', borderRadius: 'var(--radius-full)',
-                  background: badge.bg, color: badge.color, fontWeight: 700,
-                  fontSize: 11, whiteSpace: 'nowrap',
-                }}>
-                  <BadgeIcon size={11} /> {item.status}
-                </span>
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>{item.date}</span>
-              </motion.div>
-            )
-          })}
+              {/* Rows */}
+              {filtered.map((item, i) => {
+                const badge = getRiskBadge(item.riskLevel)
+                const BadgeIcon = badge.icon
+                return (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05, duration: 0.3 }}
+                    style={{
+                      display: 'grid', gridTemplateColumns: '130px 1fr 90px 130px 140px',
+                      gap: 'var(--space-md)', padding: 'var(--space-md) var(--space-lg)',
+                      borderBottom: '1px solid var(--color-surface-container-low)',
+                      alignItems: 'center', transition: 'background 0.15s', cursor: 'pointer',
+                    }}
+                    className="table-row"
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-container-low)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <span className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', fontSize: 13 }}>{item.type}</span>
+                    <span className="text-body-sm" style={{ fontWeight: 600, color: 'var(--color-on-surface)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {item.target}
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{
+                        width: 28, height: 6, borderRadius: 'var(--radius-full)',
+                        background: 'var(--color-surface-container-high)', overflow: 'hidden',
+                      }}>
+                        <div style={{
+                          width: `${item.risk}%`, height: '100%', borderRadius: 'var(--radius-full)',
+                          background: item.riskLevel === 'safe' ? 'var(--color-tertiary)' : item.risk > 90 ? 'var(--color-error)' : 'var(--risk-caution-text)',
+                        }} />
+                      </div>
+                      <span className="text-data-mono" style={{ fontWeight: 700, fontSize: 13, color: item.riskLevel === 'safe' ? 'var(--color-tertiary)' : 'var(--color-error)' }}>
+                        {item.risk}
+                      </span>
+                    </div>
+                    <span className="text-label-sm" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      padding: '3px 8px', borderRadius: 'var(--radius-full)',
+                      background: badge.bg, color: badge.color, fontWeight: 700,
+                      fontSize: 11, whiteSpace: 'nowrap',
+                    }}>
+                      <BadgeIcon size={11} /> {item.status}
+                    </span>
+                    <span className="text-label-sm" style={{ color: 'var(--color-outline)', fontSize: 12 }}>{item.date}</span>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
 
           {filtered.length === 0 && (
             <div style={{ padding: 'var(--space-xl)', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
@@ -215,13 +219,12 @@ export default function HistoryPage() {
       </div>
 
       <style>{`
-        @media (max-width: 768px) {
-          .table-header, .table-row {
-            grid-template-columns: 1fr 1fr !important;
-          }
-          .table-header span:nth-child(n+3), .table-row > *:nth-child(n+4) {
-            display: none;
-          }
+        .table-scroll-container::-webkit-scrollbar {
+          height: 6px;
+        }
+        .table-scroll-container::-webkit-scrollbar-thumb {
+          background: var(--color-outline-variant);
+          border-radius: 9999px;
         }
       `}</style>
     </PageTransition>

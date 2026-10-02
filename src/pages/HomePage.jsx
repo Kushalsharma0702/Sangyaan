@@ -141,41 +141,46 @@ export default function HomePage() {
                 </span>
               </div>
 
-              <h1 className="text-display-hero" style={{ color: 'var(--color-on-primary)', fontWeight: 800 }}>
+              <h1 className="text-display-hero hero-title-responsive" style={{ color: 'var(--color-on-primary)', fontWeight: 800, fontSize: 'clamp(1.5rem, 4.2vw, 2.75rem)', lineHeight: 1.25 }}>
                 संदेश, लिंक या निवेश सलाह की जांच करें धोखाधड़ी से पहले!
               </h1>
 
-              <p className="text-body-lg" style={{ color: 'var(--color-primary-fixed)', fontWeight: 500 }}>
+              <p className="text-body-lg" style={{ color: 'var(--color-primary-fixed)', fontWeight: 500, fontSize: 'clamp(1rem, 2.5vw, 1.15rem)' }}>
                 AI-powered verification for safer and smarter India
               </p>
-              <p className="text-body-md" style={{ color: 'rgba(183,196,255,0.8)', maxWidth: 560 }}>
+              <p className="text-body-md" style={{ color: 'rgba(183,196,255,0.85)', maxWidth: 560, fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
                 Verify WhatsApp forwards, Telegram trading tips, SEBI numbers, and UPI handles before making any payment. Instant zero-trust telemetry for every citizen.
               </p>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-md)', paddingTop: 'var(--space-xs)' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-sm)', paddingTop: 'var(--space-xs)' }}>
                 <Link
                   to="/verify"
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
-                    padding: '14px 24px', borderRadius: 'var(--radius-xl)',
+                    padding: '12px 20px', borderRadius: 'var(--radius-xl)',
                     background: 'var(--color-surface-container-lowest)', color: 'var(--color-primary)',
-                    fontWeight: 700, fontSize: 15, boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                    transition: 'all 0.2s',
+                    fontWeight: 700, fontSize: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                    transition: 'all 0.2s', textDecoration: 'none'
                   }}
                 >
                   <ShieldCheck size={18} />
                   <span>Start Checking</span>
                   <ArrowRight size={18} />
                 </Link>
-                <button style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
-                  padding: '14px 24px', borderRadius: 'var(--radius-xl)',
-                  background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)',
-                  color: 'var(--color-on-primary)', fontWeight: 600, fontSize: 15,
-                  transition: 'background 0.2s',
-                }}>
-                  <PlayCircle size={20} />
-                  <span>Watch 30s Demo</span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/learn')}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 'var(--space-xs)',
+                    padding: '12px 20px', borderRadius: 'var(--radius-xl)',
+                    background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)',
+                    color: 'var(--color-on-primary)', fontWeight: 600, fontSize: 14,
+                    transition: 'background 0.2s', border: '1px solid rgba(255,255,255,0.25)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <PlayCircle size={18} />
+                  <span>Explore Lessons</span>
                 </button>
               </div>
 
@@ -572,12 +577,14 @@ export default function HomePage() {
         .hero-grid { grid-template-columns: 7fr 5fr; }
         @media (max-width: 991px) {
           .hero-grid { grid-template-columns: 1fr; }
-          .hero-3d-col { order: -1; max-width: 380px; margin: 0 auto; }
+          .hero-3d-col { order: -1; max-width: 320px; margin: 0 auto; }
         }
         .verify-input-bar { flex-direction: row; }
         @media (max-width: 640px) {
-          .verify-input-bar { flex-direction: column; }
+          .verify-input-bar { flex-direction: column; gap: 8px; padding: 8px; }
+          .verify-input-bar button { width: 100%; justify-content: center; }
           .paste-label { display: none; }
+          .hero-3d-col { max-width: 260px; }
         }
       `}</style>
     </PageTransition>

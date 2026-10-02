@@ -217,19 +217,20 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
         </div>
 
         {/* Multi-Step Progress Tracker */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 'var(--space-xl)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 'var(--space-xl)', overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: '4px 0' }} className="step-tracker-container">
           {[
-            { num: 1, title: 'Category & Details' },
-            { num: 2, title: 'Suspect Identifiers' },
-            { num: 3, title: 'Evidence & Narrative' },
-            { num: 4, title: 'Official Dossier' },
+            { num: 1, title: 'Category' },
+            { num: 2, title: 'Suspect' },
+            { num: 3, title: 'Evidence' },
+            { num: 4, title: 'Dossier' },
           ].map((item, idx, arr) => (
             <div key={item.num} style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <div
+                  className="step-circle"
                   style={{
-                    width: 36,
-                    height: 36,
+                    width: 32,
+                    height: 32,
                     borderRadius: '50%',
                     background: step === item.num
                       ? 'var(--color-primary)'
@@ -241,34 +242,39 @@ National Cyber Crime Helpline: 1930 | Portal: https://cybercrime.gov.in`
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontWeight: 700,
-                    fontSize: 14,
+                    fontSize: 13,
                     transition: 'all 0.3s ease'
                   }}
                 >
-                  {step > item.num ? <Check size={18} /> : item.num}
+                  {step > item.num ? <Check size={16} /> : item.num}
                 </div>
-                <span style={{
-                  fontSize: 12,
+                <span className="step-title" style={{
+                  fontSize: 11,
                   fontWeight: step === item.num ? 700 : 500,
-                  color: step === item.num ? 'var(--color-primary)' : 'var(--color-on-surface-variant)'
+                  color: step === item.num ? 'var(--color-primary)' : 'var(--color-on-surface-variant)',
+                  whiteSpace: 'nowrap'
                 }}>
                   {item.title}
                 </span>
               </div>
               {idx < arr.length - 1 && (
-                <div style={{
-                  width: 60,
-                  height: 2,
-                  background: step > item.num ? 'var(--risk-safe-text)' : 'var(--color-outline-variant)',
-                  margin: '0 12px 22px 12px'
-                }} />
+                <div
+                  className="step-line"
+                  style={{
+                    width: 'clamp(14px, 4vw, 48px)',
+                    height: 2,
+                    background: step > item.num ? 'var(--risk-safe-text)' : 'var(--color-outline-variant)',
+                    margin: '0 8px 18px 8px',
+                    flexShrink: 0
+                  }}
+                />
               )}
             </div>
           ))}
         </div>
 
         {/* Form Container Card */}
-        <div className="card" style={{ padding: 'var(--space-xl)', background: '#ffffff', border: '1px solid var(--color-outline-variant)', borderRadius: 'var(--radius-xl)' }}>
+        <div className="card" style={{ padding: 'clamp(16px, 3vw, 36px)', background: '#ffffff', border: '1px solid var(--color-outline-variant)', borderRadius: 'var(--radius-xl)' }}>
           
           {/* STEP 1: CATEGORY & TRANSACTION */}
           {step === 1 && (

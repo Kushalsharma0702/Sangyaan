@@ -134,21 +134,24 @@ export default function Header() {
           }}
         >
           {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', textDecoration: 'none' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', textDecoration: 'none', flexShrink: 0 }}>
             <div style={{
-              width: 36, height: 36, borderRadius: 'var(--radius-md)',
+              width: 34, height: 34, borderRadius: 'var(--radius-md)',
               background: 'linear-gradient(135deg, #1f4fd8, #0f1f54)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 10px rgba(31, 79, 216, 0.25)'
+              boxShadow: '0 4px 10px rgba(31, 79, 216, 0.25)',
+              flexShrink: 0
             }}>
-              <Shield size={20} color="#fff" strokeWidth={2.5} />
+              <Shield size={18} color="#fff" strokeWidth={2.5} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span className="text-headline-sm" style={{ color: 'var(--color-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
+              <span className="logo-title" style={{ color: 'var(--color-primary)', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                 Sangyan Shield
               </span>
-              <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: 2 }}>
-                संज्ञान शील्ड • Verify Before You Pay
+              <span className="logo-slogan" style={{ color: 'var(--color-on-surface-variant)', marginTop: 2 }}>
+                <span className="slogan-hi">संज्ञान शील्ड</span>
+                <span className="slogan-dot"> • </span>
+                <span className="slogan-en">Verify Before You Pay</span>
               </span>
             </div>
           </Link>
@@ -184,23 +187,25 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setLangOpen(prev => !prev)}
-                className="text-label-md"
+                className="text-label-md lang-header-btn"
                 aria-label="Switch Language"
                 aria-expanded={langOpen}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '7px 14px', borderRadius: 'var(--radius-full)',
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '6px 10px', borderRadius: 'var(--radius-full)',
                   background: langOpen ? 'var(--color-primary-fixed)' : 'var(--color-surface-container-low)',
                   color: langOpen ? 'var(--color-primary)' : 'var(--color-on-surface-variant)',
                   border: `1px solid ${langOpen ? 'var(--color-primary)' : 'transparent'}`,
                   cursor: 'pointer',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
+                  fontSize: 12,
                 }}
               >
-                <Languages size={16} />
-                <span>{currentLangObj.label} / EN</span>
-                <ChevronDown size={14} style={{ transform: langOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                <Languages size={15} />
+                <span className="lang-full-label">{currentLangObj.label} / EN</span>
+                <span className="lang-compact-label">{currentLangObj.code.toUpperCase()}</span>
+                <ChevronDown size={13} className="lang-chevron" style={{ transform: langOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </button>
 
               <AnimatePresence>
@@ -215,6 +220,7 @@ export default function Header() {
                       top: 'calc(100% + 8px)',
                       right: 0,
                       width: 230,
+                      maxWidth: 'calc(100vw - 32px)',
                       background: '#ffffff',
                       borderRadius: 'var(--radius-lg)',
                       boxShadow: '0 12px 32px rgba(15, 31, 84, 0.14)',
@@ -274,20 +280,22 @@ export default function Header() {
               className="text-label-md helpline-btn"
               aria-label="National Cyber Fraud Helpline 1930"
               style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '7px 14px', borderRadius: 'var(--radius-full)',
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '6px 12px', borderRadius: 'var(--radius-full)',
                 background: 'var(--color-error-container)',
                 color: 'var(--color-on-error-container)',
                 border: '1px solid rgba(220, 38, 38, 0.2)',
                 fontWeight: 700,
                 cursor: 'pointer',
                 transition: 'transform 0.15s, box-shadow 0.15s',
-                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.15)'
+                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.15)',
+                fontSize: 12,
+                flexShrink: 0
               }}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <Phone size={15} style={{ color: 'var(--color-error)' }} />
+              <Phone size={14} style={{ color: 'var(--color-error)' }} />
               <span>1930</span>
             </button>
 
@@ -299,9 +307,10 @@ export default function Header() {
                 onClick={() => setProfileOpen(prev => !prev)}
                 className="profile-section"
                 aria-expanded={profileOpen}
+                aria-label="User Profile"
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '4px 8px', borderRadius: 'var(--radius-full)',
+                  padding: '3px 6px', borderRadius: 'var(--radius-full)',
                   cursor: 'pointer',
                   background: profileOpen ? 'var(--color-surface-container-high)' : 'transparent',
                   transition: 'background 0.2s',
@@ -309,24 +318,25 @@ export default function Header() {
                 }}
               >
                 <div style={{
-                  width: 34, height: 34, borderRadius: '50%',
+                  width: 32, height: 32, borderRadius: '50%',
                   background: 'linear-gradient(135deg, #1f4fd8, #4e5b93)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#ffffff', fontWeight: 700, fontSize: 13,
+                  color: '#ffffff', fontWeight: 700, fontSize: 12,
                   boxShadow: '0 2px 6px rgba(15, 31, 84, 0.2)',
-                  position: 'relative'
+                  position: 'relative',
+                  flexShrink: 0
                 }}>
                   RK
                   <span style={{
                     position: 'absolute', bottom: -1, right: -1,
-                    width: 10, height: 10, borderRadius: '50%',
+                    width: 8, height: 8, borderRadius: '50%',
                     background: '#16a34a', border: '2px solid #ffffff'
                   }} />
                 </div>
-                <span className="text-label-md profile-name" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>
+                <span className="text-label-md profile-name" style={{ color: 'var(--color-on-surface)', fontWeight: 600, fontSize: 13 }}>
                   Rajesh K.
                 </span>
-                <ChevronDown size={16} style={{ color: 'var(--color-on-surface-variant)', transform: profileOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                <ChevronDown size={14} className="profile-chevron" style={{ color: 'var(--color-on-surface-variant)', transform: profileOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </div>
 
               <AnimatePresence>
@@ -723,37 +733,116 @@ export default function Header() {
               display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)',
             }}
           >
-            {NAV_LINKS.map(link => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                end={link.path === '/'}
-                className="text-headline-sm"
-                style={({ isActive }) => ({
-                  padding: 'var(--space-md) var(--space-lg)',
-                  borderRadius: 'var(--radius-lg)',
-                  color: isActive ? 'var(--color-primary)' : 'var(--color-on-surface)',
-                  background: isActive ? 'var(--color-primary-fixed)' : 'transparent',
-                  fontWeight: isActive ? 700 : 500,
-                  transition: 'all 0.2s',
-                  textDecoration: 'none'
-                })}
-              >
-                {link.label}
-              </NavLink>
-            ))}
+            {/* Mobile User Card */}
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 14px', background: 'var(--color-surface-container-low)',
+              borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-outline-variant)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #1f4fd8, #0f1f54)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#ffffff', fontWeight: 700, fontSize: 14
+                }}>
+                  RK
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-on-surface)' }}>Rajesh Kumar</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-on-surface-variant)' }}>rajesh.k@nic.in • Verified</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  onClick={() => {
+                    setMobileOpen(false)
+                    navigate('/history')
+                  }}
+                  className="btn btn-secondary"
+                  style={{ padding: '6px 10px', fontSize: 11, borderRadius: 'var(--radius-sm)' }}
+                >
+                  History
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileOpen(false)
+                    navigate('/report')
+                  }}
+                  className="btn btn-primary"
+                  style={{ padding: '6px 10px', fontSize: 11, borderRadius: 'var(--radius-sm)' }}
+                >
+                  Reports
+                </button>
+              </div>
+            </div>
 
-            <div style={{ marginTop: 'auto', paddingTop: 'var(--space-md)', borderTop: '1px solid var(--color-surface-container-high)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+            {/* Mobile Nav Links */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '8px 0' }}>
+              {NAV_LINKS.map(link => (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  end={link.path === '/'}
+                  className="text-label-lg"
+                  style={({ isActive }) => ({
+                    padding: '10px 14px',
+                    borderRadius: 'var(--radius-md)',
+                    color: isActive ? 'var(--color-primary)' : 'var(--color-on-surface)',
+                    background: isActive ? 'var(--color-primary-fixed)' : 'transparent',
+                    fontWeight: isActive ? 700 : 600,
+                    transition: 'all 0.2s',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  })}
+                >
+                  <span>{link.label}</span>
+                  <ArrowRight size={14} style={{ opacity: 0.5 }} />
+                </NavLink>
+              ))}
+            </div>
+
+            {/* Quick Language Selection Chips in Mobile Menu */}
+            <div style={{ padding: '8px 0', borderTop: '1px solid var(--color-surface-container-high)' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-outline)', textTransform: 'uppercase', marginBottom: 8 }}>
+                Language / भाषा:
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {LANGUAGES.slice(0, 5).map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => handleSelectLanguage(lang)}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: 'var(--radius-full)',
+                      border: `1px solid ${selectedLang === lang.code ? 'var(--color-primary)' : 'var(--color-outline-variant)'}`,
+                      background: selectedLang === lang.code ? 'var(--color-primary-fixed)' : 'transparent',
+                      color: selectedLang === lang.code ? 'var(--color-primary)' : 'var(--color-on-surface)',
+                      fontSize: 12,
+                      fontWeight: selectedLang === lang.code ? 700 : 500,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Emergency 1930 Button */}
+            <div style={{ marginTop: 'auto', paddingTop: 'var(--space-sm)', borderTop: '1px solid var(--color-surface-container-high)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
               <button
                 onClick={() => {
                   setMobileOpen(false)
                   setHelplineModalOpen(true)
                 }}
                 className="btn btn-primary"
-                style={{ width: '100%', background: '#dc2626', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, borderRadius: 'var(--radius-md)', fontWeight: 700 }}
+                style={{ width: '100%', background: '#dc2626', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, borderRadius: 'var(--radius-md)', fontWeight: 700, fontSize: 14 }}
               >
                 <Phone size={18} />
-                Emergency 1930 Helpline
+                Emergency 1930 Hotline
               </button>
             </div>
           </motion.div>
@@ -764,14 +853,37 @@ export default function Header() {
         .desktop-nav { display: flex !important; }
         .mobile-menu-btn { display: none !important; }
         .profile-name { display: inline !important; }
+        .profile-chevron { display: inline !important; }
+        .lang-full-label { display: inline !important; }
+        .lang-compact-label { display: none !important; }
+        .logo-title { font-size: 18px; }
+        .logo-slogan { font-size: 11px; white-space: nowrap; }
+
         @media (max-width: 1199px) {
           .desktop-nav { display: none !important; }
           .mobile-menu-btn { display: flex !important; }
-          .profile-name { display: none !important; }
         }
-        @media (max-width: 640px) {
+
+        @media (max-width: 768px) {
+          .profile-name { display: none !important; }
+          .profile-chevron { display: none !important; }
+          .lang-full-label { display: none !important; }
+          .lang-compact-label { display: inline !important; }
+          .logo-title { font-size: 16px; }
+          .logo-slogan { font-size: 10px; }
+          .slogan-en { display: none; }
+          .slogan-dot { display: none; }
+        }
+
+        @media (max-width: 480px) {
+          .logo-title { font-size: 15px; }
+          .logo-slogan { font-size: 9.5px; }
           .helpline-btn span { display: none; }
-          .profile-section { display: none !important; }
+          .lang-chevron { display: none; }
+        }
+
+        @media (max-width: 360px) {
+          .logo-slogan { display: none; }
         }
       `}</style>
     </>

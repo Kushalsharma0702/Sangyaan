@@ -629,9 +629,10 @@ export default function VerifyWorkspace() {
           .workspace-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 640px) {
-          .tab-bar { grid-template-columns: repeat(2, 1fr) !important; }
-          .tab-label { display: none; }
-          .link-input-row { flex-direction: column; }
+          .tab-bar { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+          .tab-label { display: inline-block; font-size: 11px; }
+          .link-input-row { flex-direction: column; gap: 8px; }
+          .link-input-row button { width: 100%; justify-content: center; }
         }
       `}</style>
     </PageTransition>
