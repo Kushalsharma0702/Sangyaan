@@ -8,13 +8,7 @@ import {
   Clipboard, Square, CircleStop, TrendingUp
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
-
-const TABS = [
-  { id: 'screenshot', label: 'Screenshot', icon: ScanSearch },
-  { id: 'link', label: 'Link / Domain', icon: Link2 },
-  { id: 'message', label: 'Message', icon: MessageSquare },
-  { id: 'voice', label: 'Voice / Audio', icon: Mic },
-]
+import { useLanguage } from '../context/LanguageContext'
 
 const SAMPLE_SCREENSHOTS = [
   { id: 'telegram', label: 'Telegram VIP Tip Group', desc: '"Daily 500% profit guaranteed in Nifty 50"', tag: 'High Risk', file: 'sample_telegram_vip_calls_nifty.png (Telegram Group)' },
@@ -30,6 +24,7 @@ const LINK_SAMPLES = [
 ]
 
 export default function VerifyWorkspace() {
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'screenshot')
   const [selectedFile, setSelectedFile] = useState(null)
@@ -42,9 +37,18 @@ export default function VerifyWorkspace() {
   const timerRef = useRef(null)
   const fileInputRef = useRef(null)
 
+  const tabs = [
+    { id: 'screenshot', label: t.verifyWorkspace?.tabScreenshot || 'Screenshot', icon: ScanSearch },
+    { id: 'link', label: t.verifyWorkspace?.tabLink || 'Link / Domain', icon: Link2 },
+    { id: 'message', label: t.verifyWorkspace?.tabMessage || 'Message', icon: MessageSquare },
+    { id: 'voice', label: t.verifyWorkspace?.tabVoice || 'Voice / Audio', icon: Mic },
+  ]
+
   useEffect(() => {
     const tab = searchParams.get('tab')
-    if (tab && TABS.some(t => t.id === tab)) setActiveTab(tab)
+    if (tab && ['screenshot', 'link', 'message', 'voice'].includes(tab)) {
+      setActiveTab(tab)
+    }
   }, [searchParams])
 
   const handleFileSelect = useCallback((e) => {
@@ -84,17 +88,17 @@ export default function VerifyWorkspace() {
         {/* Breadcrumb */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', color: 'var(--color-on-surface-variant)' }} className="text-label-md">
-            <span>Home</span>
+            <span>{t.verifyWorkspace?.breadcrumbHome || 'Home'}</span>
             <ArrowRight size={14} />
-            <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Civic Verification Workspace</span>
+            <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{t.verifyWorkspace?.breadcrumbWorkspace || 'Civic Verification Workspace'}</span>
             <span className="text-label-sm" style={{ padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'var(--color-surface-container-high)', color: 'var(--color-primary)', marginLeft: 4 }}>
-              AI Shield Engine v4.2
+              {t.verifyWorkspace?.engineVersion || 'AI Shield Engine v4.2'}
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 'var(--radius-full)', background: 'var(--color-surface-container-lowest)', boxShadow: 'var(--shadow-card)' }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-tertiary)', animation: 'pulse-ring 2s infinite' }} />
-              <span className="text-label-sm" style={{ color: 'var(--color-on-surface)' }}>SEBI & NPCI Threat Registry: Connected</span>
+              <span className="text-label-sm" style={{ color: 'var(--color-on-surface)' }}>{t.verifyWorkspace?.registryConnected || 'SEBI & NPCI Threat Registry: Connected'}</span>
             </div>
           </div>
         </div>
@@ -121,14 +125,14 @@ export default function VerifyWorkspace() {
                       Bharat Anti-Scam Shield
                     </span>
                   </div>
-                  <h1 className="text-headline-lg" style={{ color: 'var(--color-on-surface)' }}>Verify Before You Pay</h1>
+                  <h1 className="text-headline-lg" style={{ color: 'var(--color-on-surface)' }}>{t.verifyWorkspace?.title || 'Verify Before You Pay'}</h1>
                   <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginTop: 4 }}>
-                    Paste, upload, or speak the details of any investment advice, telegram tip, or payment request.
+                    {t.verifyWorkspace?.subtitle || 'Paste, upload, or speak the details of any investment advice, telegram tip, or payment request.'}
                   </p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', background: 'var(--color-surface-container-low)', padding: '6px 12px', borderRadius: 'var(--radius-lg)', alignSelf: 'flex-start' }}>
                   <Lock size={16} style={{ color: 'var(--color-secondary)' }} />
-                  <span className="text-label-sm" style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>100% RAM Processed</span>
+                  <span className="text-label-sm" style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>{t.verifyWorkspace?.ramProcessed || '100% RAM Processed'}</span>
                 </div>
               </div>
 
@@ -138,7 +142,7 @@ export default function VerifyWorkspace() {
                 padding: 6, background: 'var(--color-surface-container-low)', borderRadius: 'var(--radius-lg)',
                 marginBottom: 'var(--space-lg)', position: 'relative', zIndex: 10,
               }} className="tab-bar">
-                {TABS.map(tab => (
+                {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
@@ -190,13 +194,18 @@ export default function VerifyWorkspace() {
                           <CloudUpload size={30} />
                         </div>
                         <p className="text-headline-sm" style={{ color: 'var(--color-on-surface)', textAlign: 'center' }}>
-                          Drag and drop your screenshot here, or <span style={{ color: 'var(--color-primary)', textDecoration: 'underline', fontWeight: 700 }}>Browse Files</span>
+                          {t.verifyWorkspace?.dropzoneTitle || 'Drag and drop your screenshot here, or'}{' '}
+                          <span style={{ color: 'var(--color-primary)', textDecoration: 'underline', fontWeight: 700 }}>{t.verifyWorkspace?.browseFiles || 'Browse Files'}</span>
                         </p>
                         <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: 4, textAlign: 'center' }}>
-                          (JPG, PNG, WhatsApp chats, Telegram channels, SMS captures up to 10MB)
+                          {t.verifyWorkspace?.dropzoneHint || '(JPG, PNG, WhatsApp chats, Telegram channels, SMS captures up to 10MB)'}
                         </p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-xs)', marginTop: 'var(--space-md)', justifyContent: 'center' }}>
-                          {['OCR Text Extraction', 'UPI QR / ID Parsing', 'Forged Seal Detection'].map(feat => (
+                          {[
+                            t.verifyWorkspace?.ocrTag || 'OCR Text Extraction',
+                            t.verifyWorkspace?.qrTag || 'UPI QR / ID Parsing',
+                            t.verifyWorkspace?.sealTag || 'Forged Seal Detection'
+                          ].map(feat => (
                             <span key={feat} className="text-label-sm" style={{
                               display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px',
                               borderRadius: 'var(--radius-full)', background: 'var(--color-surface-container-lowest)',
@@ -208,206 +217,165 @@ export default function VerifyWorkspace() {
                         </div>
                       </div>
 
+                      {/* Selected File State */}
+                      {selectedFile && (
+                        <div style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: '12px 16px', borderRadius: 'var(--radius-md)', background: 'var(--color-primary-fixed)',
+                          border: '1px solid var(--color-primary)',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Image size={20} color="var(--color-primary)" />
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--color-on-primary-fixed)' }}>{selectedFile.name}</div>
+                              <div style={{ fontSize: 11, color: 'var(--color-primary)' }}>{selectedFile.size} • Ready for OCR Forensics</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <button
+                              onClick={startAnalysis}
+                              className="btn btn-primary"
+                              style={{ padding: '8px 16px', fontSize: 13, borderRadius: 'var(--radius-md)', fontWeight: 700 }}
+                            >
+                              Run Deepfake & OCR Scan
+                            </button>
+                            <button
+                              onClick={clearFile}
+                              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-on-primary-fixed)' }}
+                            >
+                              <X size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Quick Samples */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', paddingTop: 'var(--space-xs)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <span className="text-label-lg" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>
-                            Or Quick Test with Preloaded Indian Scam Samples:
+                            {t.verifyWorkspace?.sampleHeading || 'Or Quick Test with Preloaded Indian Scam Samples:'}
                           </span>
-                          <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)' }}>Click any to test engine</span>
+                          <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
+                            {t.verifyWorkspace?.clickToTest || 'Click any to test engine'}
+                          </span>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-sm)' }}>
                           {SAMPLE_SCREENSHOTS.map(s => (
-                            <div key={s.id} onClick={() => selectSample(s)} style={{
-                              display: 'flex', flexDirection: 'column', padding: 'var(--space-sm)',
-                              borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-low)',
-                              cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--shadow-card)',
-                            }}
-                              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'var(--color-surface-container)' }}
-                              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--color-surface-container-low)' }}
+                            <button
+                              key={s.id}
+                              onClick={() => selectSample(s)}
+                              style={{
+                                textAlign: 'left', padding: 'var(--space-sm)', borderRadius: 'var(--radius-md)',
+                                background: 'var(--color-surface-container-low)', border: '1px solid var(--color-outline-variant)',
+                                cursor: 'pointer', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', gap: 4
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-primary)'}
+                              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--color-outline-variant)'}
                             >
-                              <div style={{
-                                position: 'relative', height: 100, borderRadius: 'var(--radius-default)', overflow: 'hidden',
-                                background: 'var(--color-surface-container-high)', marginBottom: 'var(--space-xs)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              }}>
-                                <FileWarning size={32} style={{ color: 'var(--color-outline)', opacity: 0.5 }} />
-                                <span className="text-label-sm" style={{
-                                  position: 'absolute', top: 8, left: 8,
-                                  background: 'var(--color-error)', color: 'var(--color-on-error)',
-                                  padding: '2px 8px', borderRadius: 'var(--radius-sm)',
-                                  fontWeight: 700, textTransform: 'uppercase', fontSize: 10, letterSpacing: '0.05em',
-                                }}>{s.tag}</span>
-                              </div>
-                              <span className="text-label-md" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{s.label}</span>
-                              <span className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.desc}</span>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 8, color: 'var(--color-primary)', fontWeight: 600, fontSize: 13 }}>
-                                <span>Load Mock</span>
-                                <ArrowRight size={12} />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Selected file preview */}
-                      <AnimatePresence>
-                        {selectedFile && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            style={{
-                              padding: 'var(--space-md)', borderRadius: 'var(--radius-lg)',
-                              background: 'var(--color-surface-container-low)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.04)',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                              <Image size={24} style={{ color: 'var(--color-primary)' }} />
-                              <div>
-                                <span className="text-label-md" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{selectedFile.name}</span>
-                                <span className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', display: 'block' }}>
-                                  {selectedFile.size} • High OCR Density Detected • Ready for Parsing
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span className="text-label-sm" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{s.label}</span>
+                                <span style={{
+                                  fontSize: 10, padding: '2px 6px', borderRadius: 4,
+                                  background: s.tag === 'High Risk' ? 'var(--risk-danger-bg)' : 'var(--risk-caution-bg)',
+                                  color: s.tag === 'High Risk' ? 'var(--risk-danger-text)' : 'var(--risk-caution-text)',
+                                  fontWeight: 700
+                                }}>
+                                  {s.tag}
                                 </span>
                               </div>
-                            </div>
-                            <button onClick={clearFile} style={{ color: 'var(--color-on-surface-variant)', transition: 'color 0.2s' }}>
-                              <X size={18} />
+                              <p style={{ margin: 0, fontSize: 11, color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
                             </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-
-                      {/* Analyze Button */}
-                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-sm)', paddingTop: 'var(--space-xs)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-on-surface-variant)' }} className="text-label-sm">
-                          <CheckCircle size={16} style={{ color: 'var(--color-tertiary)' }} />
-                          <span>Cross-checked against RBI & NPCI scam intelligence registry</span>
+                          ))}
                         </div>
-                        <button
-                          onClick={startAnalysis}
-                          disabled={analyzing}
-                          style={{
-                            padding: '14px 28px', borderRadius: 'var(--radius-lg)',
-                            background: 'var(--color-primary)', color: 'var(--color-on-primary)',
-                            fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center',
-                            gap: 'var(--space-xs)', boxShadow: '0 2px 8px rgba(0,55,177,0.25)',
-                            transition: 'all 0.2s', opacity: analyzing ? 0.7 : 1,
-                          }}
-                        >
-                          <ShieldCheck size={18} />
-                          <span>{analyzing ? 'Verifying with AI Engine...' : 'Analyze Image & Verify →'}</span>
-                        </button>
                       </div>
                     </div>
                   )}
 
-                  {/* LINK TAB */}
+                  {/* LINK / DOMAIN TAB */}
                   {activeTab === 'link' && (
-                    <div style={{ padding: 'var(--space-lg)', borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-low)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
-                      <label className="text-label-lg" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>Inspect Suspicious Web Domain or Payment Gateway</label>
-                      <div style={{ display: 'flex', gap: 'var(--space-xs)' }} className="link-input-row">
-                        <div style={{ position: 'relative', flex: 1 }}>
-                          <Link2 size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-on-surface-variant)' }} />
-                          <input
-                            type="url"
-                            value={linkValue}
-                            onChange={e => setLinkValue(e.target.value)}
-                            placeholder="Paste URL (e.g. https://sebi-secure-portal.in)"
-                            className="text-body-md"
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <label className="text-label-lg" style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                          {t.verifyWorkspace?.linkLabel || 'Enter Website Link or Domain to inspect:'}
+                        </label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} className="link-input-row">
+                          <div style={{
+                            flex: 1, display: 'flex', alignItems: 'center', background: 'var(--color-surface-container-low)',
+                            borderRadius: 'var(--radius-lg)', padding: '0 12px', border: '1px solid var(--color-outline-variant)'
+                          }}>
+                            <Link2 size={18} color="var(--color-outline)" style={{ marginRight: 8 }} />
+                            <input
+                              type="text"
+                              value={linkValue}
+                              onChange={e => setLinkValue(e.target.value)}
+                              placeholder={t.verifyWorkspace?.linkPlaceholder || 'e.g. https://fake-investment-fund.in or telegram.me/vip_calls'}
+                              style={{ width: '100%', padding: '12px 0', border: 'none', background: 'transparent', outline: 'none', fontSize: 14 }}
+                            />
+                          </div>
+                          <button
+                            onClick={() => navigate('/analysis')}
                             style={{
-                              width: '100%', paddingLeft: 42, paddingRight: 16, padding: '12px 16px 12px 42px',
-                              borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-lowest)',
-                              color: 'var(--color-on-surface)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)',
+                              padding: '12px 24px', borderRadius: 'var(--radius-lg)',
+                              background: 'var(--color-primary)', color: 'var(--color-on-primary)',
+                              fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer',
+                              boxShadow: '0 2px 8px rgba(0,55,177,0.25)', whiteSpace: 'nowrap'
                             }}
-                          />
+                          >
+                            {t.verifyWorkspace?.inspectUrlBtn || 'Inspect Domain & SSL'}
+                          </button>
                         </div>
-                        <button
-                          onClick={() => { if (!linkValue) setLinkValue('https://sebi-india-verify.com/portal'); navigate('/analysis') }}
-                          style={{
-                            padding: '12px 20px', borderRadius: 'var(--radius-lg)',
-                            background: 'var(--color-primary)', color: 'var(--color-on-primary)',
-                            fontWeight: 600, fontSize: 15, display: 'flex', alignItems: 'center',
-                            gap: 'var(--space-xs)', boxShadow: '0 2px 8px rgba(0,55,177,0.25)',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          <Search size={16} />
-                          <span>Inspect Domain</span>
-                        </button>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 'var(--space-xs)' }}>
-                        <span className="text-label-sm" style={{ fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>Quick Samples in Indian Financial Cyber Feeds:</span>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-xs)' }}>
-                          {LINK_SAMPLES.map(s => (
-                            <button key={s.domain} onClick={() => setLinkValue(s.domain)} className="text-data-mono" style={{
-                              display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px',
-                              borderRadius: 'var(--radius-full)', background: 'var(--color-surface-container-lowest)',
-                              boxShadow: 'var(--shadow-card)', transition: 'background 0.2s',
-                            }}>
-                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.safe ? 'var(--color-tertiary)' : 'var(--color-error)' }} />
-                              <span style={{ color: 'var(--color-on-surface)' }}>{s.domain}</span>
-                              <span className="text-label-sm" style={{ fontWeight: 600, color: s.safe ? 'var(--color-tertiary)' : 'var(--color-error)' }}>({s.type})</span>
-                            </button>
-                          ))}
-                        </div>
+
+                      {/* Quick link samples */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                        <span style={{ fontSize: 12, color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>Quick Test:</span>
+                        {LINK_SAMPLES.map(ls => (
+                          <button
+                            key={ls.domain}
+                            onClick={() => setLinkValue(ls.domain)}
+                            style={{
+                              padding: '4px 10px', borderRadius: 'var(--radius-full)',
+                              background: 'var(--color-surface-container)', border: '1px solid var(--color-outline-variant)',
+                              fontSize: 12, cursor: 'pointer', color: 'var(--color-on-surface)'
+                            }}
+                          >
+                            {ls.domain}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
 
                   {/* MESSAGE TAB */}
                   {activeTab === 'message' && (
-                    <div style={{ padding: 'var(--space-lg)', borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-low)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <label className="text-label-lg" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>Paste SMS, WhatsApp Message, or Task Scam Pitch</label>
-                        <span className="text-data-mono" style={{ color: 'var(--color-on-surface-variant)' }}>{messageValue.length} / 5000 characters</span>
-                      </div>
-                      <textarea
-                        value={messageValue}
-                        onChange={e => setMessageValue(e.target.value)}
-                        placeholder='Paste the text pitch, guaranteed profit promises, or payment request message here...'
-                        rows={4}
-                        className="text-body-md"
-                        style={{
-                          width: '100%', padding: 'var(--space-md)', borderRadius: 'var(--radius-lg)',
-                          background: 'var(--color-surface-container-lowest)', color: 'var(--color-on-surface)',
-                          resize: 'vertical', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)',
-                        }}
-                      />
-                      <div style={{
-                        padding: 'var(--space-md)', borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-lowest)',
-                        display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-sm)',
-                        boxShadow: 'var(--shadow-card)',
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-xs)' }}>
-                          <MessageSquare size={18} style={{ color: 'var(--color-secondary)', marginTop: 2 }} />
-                          <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
-                            "SEBI approved premium investment opportunity. Guaranteed 40% return in 30 days. Limited slots. Pay now to abc@upi"
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setMessageValue('SEBI approved premium investment opportunity. Guaranteed 40% return in 30 days. Limited slots. Pay now to abc@upi')}
-                          className="text-label-md"
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <label className="text-label-lg" style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                          {t.verifyWorkspace?.messageLabel || 'Paste suspicious message, SMS or WhatsApp text:'}
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={messageValue}
+                          onChange={e => setMessageValue(e.target.value)}
+                          placeholder={t.verifyWorkspace?.messagePlaceholder || 'Electricity bill warning, lottery win message, work-from-home job offer...'}
                           style={{
-                            display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px',
-                            borderRadius: 'var(--radius-default)', background: 'var(--color-secondary-fixed)',
-                            color: 'var(--color-on-secondary-fixed)', fontWeight: 700, flexShrink: 0,
+                            width: '100%', padding: '12px', borderRadius: 'var(--radius-lg)',
+                            background: 'var(--color-surface-container-low)', border: '1px solid var(--color-outline-variant)',
+                            outline: 'none', fontSize: 14, resize: 'vertical', fontFamily: 'inherit'
                           }}
-                        >
-                          <Clipboard size={14} />
-                          <span>Use this example</span>
-                        </button>
+                        />
                       </div>
-                      <button onClick={() => navigate('/analysis')} style={{
-                        alignSelf: 'flex-end', padding: '12px 28px', borderRadius: 'var(--radius-lg)',
-                        background: 'var(--color-primary)', color: 'var(--color-on-primary)',
-                        fontWeight: 600, fontSize: 15, display: 'flex', alignItems: 'center',
-                        gap: 8, boxShadow: '0 2px 8px rgba(0,55,177,0.25)',
-                      }}>
+                      <button
+                        onClick={() => navigate('/analysis')}
+                        style={{
+                          alignSelf: 'flex-end', padding: '12px 28px', borderRadius: 'var(--radius-lg)',
+                          background: 'var(--color-primary)', color: 'var(--color-on-primary)',
+                          fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer',
+                          boxShadow: '0 2px 8px rgba(0,55,177,0.25)', display: 'flex', alignItems: 'center', gap: 8
+                        }}
+                      >
                         <Search size={18} />
-                        <span>Evaluate Text Intent</span>
+                        <span>{t.verifyWorkspace?.inspectMsgBtn || 'Run AI Text Forensics'}</span>
                       </button>
                     </div>
                   )}
@@ -419,65 +387,58 @@ export default function VerifyWorkspace() {
                       padding: 'var(--space-xl)', borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-low)',
                       textAlign: 'center',
                     }}>
-                      {/* Mic Button with Pulse */}
                       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 'var(--space-md) 0' }}>
                         {isRecording && (
                           <>
-                            <div style={{ position: 'absolute', width: 120, height: 120, borderRadius: '50%', background: 'rgba(0,55,177,0.08)', animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
-                            <div style={{ position: 'absolute', width: 96, height: 96, borderRadius: '50%', background: 'rgba(0,55,177,0.15)' }} />
+                            <div style={{ position: 'absolute', width: 120, height: 120, borderRadius: '50%', background: 'rgba(220,38,38,0.1)', animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+                            <div style={{ position: 'absolute', width: 96, height: 96, borderRadius: '50%', background: 'rgba(220,38,38,0.2)' }} />
                           </>
                         )}
                         <button
                           onClick={toggleRecording}
                           style={{
                             position: 'relative', zIndex: 10, width: 76, height: 76, borderRadius: '50%',
-                            background: isRecording ? 'var(--color-error)' : 'var(--color-primary)',
-                            color: 'var(--color-on-primary)', display: 'flex', alignItems: 'center',
+                            background: isRecording ? '#dc2626' : 'var(--color-primary)',
+                            color: '#ffffff', display: 'flex', alignItems: 'center',
                             justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,55,177,0.3)',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s', border: 'none', cursor: 'pointer'
                           }}
                         >
                           {isRecording ? <Square size={28} fill="white" /> : <Mic size={32} />}
                         </button>
                       </div>
 
-                      <span className="text-headline-sm" style={{ color: 'var(--color-primary)', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: 20, fontVariantNumeric: 'tabular-nums' }}>
                         {formatTime(recordTime)}
                       </span>
-                      <p className="text-label-lg" style={{ fontWeight: 600, color: 'var(--color-on-surface)', marginTop: 4 }}>
-                        Speak in Hindi or English (बोलें या कॉल सुनाएं)
+                      <p className="text-label-lg" style={{ fontWeight: 700, color: 'var(--color-on-surface)', marginTop: 6 }}>
+                        {t.verifyWorkspace?.voiceTitle || 'Speak in Hindi or English (बोलें या कॉल सुनाएं)'}
                       </p>
-                      <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', maxWidth: 400, marginTop: 4 }}>
-                        Describe the call you received or place the phone near speaker to transcribe high-pressure coercion.
+                      <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', maxWidth: 440, marginTop: 4, lineHeight: 1.5 }}>
+                        {t.verifyWorkspace?.voiceDesc || 'Describe the call you received or place the phone near speaker to transcribe high-pressure coercion.'}
                       </p>
 
-                      {/* Waveform */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, height: 48, margin: 'var(--space-md) 0', width: '100%', maxWidth: 300 }}>
-                        {[4, 8, 12, 7, 10, 5, 9, 3].map((h, i) => (
-                          <span key={i} style={{
-                            width: 6, height: h * 4, borderRadius: 'var(--radius-full)',
-                            background: `rgba(0,55,177,${0.3 + i * 0.08})`,
-                            animation: isRecording ? `bounce-bar 0.6s ${i * 0.1}s ease-in-out infinite` : 'none',
-                            transformOrigin: 'bottom',
-                          }} />
-                        ))}
-                      </div>
-
-                      {/* Transcript */}
-                      <div style={{
-                        width: '100%', maxWidth: 480, padding: 'var(--space-md)', borderRadius: 'var(--radius-lg)',
-                        background: 'var(--color-surface-container-lowest)', textAlign: 'left',
-                        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)',
-                      }}>
-                        <span className="text-label-sm" style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-                          Live Neural ASR Transcript:
-                        </span>
-                        <p className="text-body-md" style={{ color: 'var(--color-on-surface)', marginTop: 4, fontStyle: 'italic' }}>
-                          {isRecording
-                            ? '"नमस्ते, मैं एसबीआई मुख्य शाखा मुंबई से बोल रहा हूँ। आपका खाता ब्लॉक हो गया है, तुरंत नीचे दिए गए यूपीआई पर 500 रुपये ट्रांसफर करें..."'
-                            : 'Transcribing speech in real-time... (Hindi dialect engine initialized)'
-                          }
-                        </p>
+                      <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                        <button
+                          onClick={toggleRecording}
+                          style={{
+                            padding: '8px 18px', borderRadius: 'var(--radius-md)',
+                            background: isRecording ? '#dc2626' : 'var(--color-primary)',
+                            color: '#ffffff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer'
+                          }}
+                        >
+                          {isRecording ? (t.verifyWorkspace?.stopRecord || 'Stop Recording') : (t.verifyWorkspace?.startRecord || 'Start Recording')}
+                        </button>
+                        <button
+                          onClick={() => navigate('/analysis')}
+                          style={{
+                            padding: '8px 18px', borderRadius: 'var(--radius-md)',
+                            background: '#ffffff', border: '1px solid var(--color-outline-variant)',
+                            color: 'var(--color-on-surface)', fontWeight: 600, fontSize: 13, cursor: 'pointer'
+                          }}
+                        >
+                          {t.verifyWorkspace?.uploadAudio || 'Upload Audio Clip'}
+                        </button>
                       </div>
                     </div>
                   )}
@@ -495,6 +456,7 @@ export default function VerifyWorkspace() {
                   padding: 'var(--space-lg)', borderRadius: 'var(--radius-xl)',
                   background: 'var(--color-surface-container-lowest)', boxShadow: 'var(--shadow-card)',
                   display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                  border: '1px solid rgba(196,197,215,0.4)'
                 }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: card.color, fontWeight: 700, marginBottom: 8 }}>
@@ -505,7 +467,9 @@ export default function VerifyWorkspace() {
                   </div>
                   <div style={{ marginTop: 'var(--space-md)', paddingTop: 'var(--space-sm)', borderTop: '1px solid var(--color-surface-container-high)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{card.status}</span>
-                    <button className="text-label-md" style={{ color: card.color, fontWeight: 700 }}>Run Lookup →</button>
+                    <button onClick={() => navigate('/verify?tab=link')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: card.color, fontWeight: 700, fontSize: 13 }}>
+                      Run Lookup →
+                    </button>
                   </div>
                 </div>
               ))}
@@ -515,13 +479,13 @@ export default function VerifyWorkspace() {
           {/* Right Sidebar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }} className="workspace-sidebar">
             {/* Tips Card */}
-            <div style={{ background: 'var(--color-surface-container-lowest)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', boxShadow: 'var(--shadow-card)' }}>
+            <div style={{ background: 'var(--color-surface-container-lowest)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', boxShadow: 'var(--shadow-card)', border: '1px solid rgba(196,197,215,0.4)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', marginBottom: 'var(--space-md)', paddingBottom: 'var(--space-xs)', borderBottom: '1px solid var(--color-surface-container-high)' }}>
                 <span style={{ padding: 8, borderRadius: 'var(--radius-default)', background: 'var(--color-primary-fixed)', color: 'var(--color-primary)' }}>
                   <CheckCircle size={18} />
                 </span>
                 <div>
-                  <h2 className="text-headline-sm" style={{ color: 'var(--color-on-surface)' }}>Tips for a Good Check</h2>
+                  <h2 className="text-headline-sm" style={{ color: 'var(--color-on-surface)', margin: 0 }}>Tips for a Good Check</h2>
                   <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)' }}>Maximizing AI Confidence Score</span>
                 </div>
               </div>
@@ -544,7 +508,7 @@ export default function VerifyWorkspace() {
               ))}
               <div style={{ padding: 'var(--space-md)', borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-low)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-xs)', marginTop: 'var(--space-xs)' }}>
                 <Lock size={18} style={{ color: 'var(--color-tertiary)', marginTop: 2 }} />
-                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
+                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
                   <strong style={{ color: 'var(--color-on-surface)' }}>Data Sovereignty:</strong> Your uploaded images are processed in volatile memory (RAM) and permanently wiped post-verification.
                 </p>
               </div>
@@ -552,71 +516,46 @@ export default function VerifyWorkspace() {
 
             {/* Emergency Card */}
             <div style={{
-              background: 'var(--color-inverse-surface)', color: 'var(--color-inverse-on-surface)',
+              background: 'linear-gradient(135deg, #0b132b 0%, #1f4fd8 100%)', color: '#ffffff',
               borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', boxShadow: 'var(--shadow-elevated)',
               position: 'relative', overflow: 'hidden',
             }}>
-              <div style={{ position: 'absolute', right: -32, bottom: -32, width: 140, height: 140, borderRadius: '50%', background: 'rgba(186,26,26,0.1)', pointerEvents: 'none' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', marginBottom: 'var(--space-sm)' }}>
-                <span style={{ padding: 6, borderRadius: 'var(--radius-default)', background: 'var(--color-error)', color: 'var(--color-on-error)' }}>
+                <span style={{ padding: 6, borderRadius: 'var(--radius-default)', background: '#dc2626', color: '#ffffff' }}>
                   <AlertTriangle size={18} />
                 </span>
-                <span className="text-label-sm" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-error-container)' }}>
+                <span className="text-label-sm" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#fca5a5' }}>
                   Critical Intervention
                 </span>
               </div>
-              <h3 className="text-headline-sm" style={{ marginBottom: 'var(--space-xs)' }}>Suspicious of an ongoing transaction right now?</h3>
-              <p className="text-body-sm" style={{ color: 'var(--color-surface-variant)', marginBottom: 'var(--space-lg)' }}>
-                If you have just authorized an unauthorized transfer or were coerced into sharing an OTP, execute immediate deterrence:
+              <h3 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 6px', color: '#ffffff' }}>
+                Suspicious of an ongoing transaction right now?
+              </h3>
+              <p style={{ fontSize: 13, color: '#dbeafe', margin: '0 0 16px', lineHeight: 1.5 }}>
+                If you authorized an unauthorized transfer or were coerced into sharing an OTP, act immediately:
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <a href="tel:1930" style={{
-                  width: '100%', padding: '14px', borderRadius: 'var(--radius-lg)',
-                  background: 'var(--color-error)', color: 'var(--color-on-error)',
-                  fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', gap: 'var(--space-xs)', boxShadow: '0 2px 8px rgba(186,26,26,0.3)',
+                  width: '100%', padding: '12px', borderRadius: 'var(--radius-md)',
+                  background: '#dc2626', color: '#ffffff',
+                  fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', gap: 8, textDecoration: 'none'
                 }}>
-                  <Phone size={20} />
+                  <Phone size={18} />
                   <span>Call 1930 Cyber Helpline</span>
                 </a>
-                <button style={{
-                  width: '100%', padding: '12px', borderRadius: 'var(--radius-lg)',
-                  background: 'rgba(224,227,229,0.15)', color: 'var(--color-inverse-on-surface)',
-                  fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', gap: 'var(--space-xs)',
-                }}
-                  onClick={() => alert('Emergency Bank Freeze Steps:\n\n1. Call your bank\'s 24x7 toll-free card/account hotlist number immediately.\n2. Send SMS \'BLOCK <Account_No>\' (if supported by your bank).\n3. File formal complaint on 1930 within the \'Golden Hour\' to freeze beneficiary nodal accounts.')}
+                <button
+                  style={{
+                    width: '100%', padding: '10px', borderRadius: 'var(--radius-md)',
+                    background: 'rgba(255,255,255,0.15)', color: '#ffffff',
+                    fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,0.25)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => navigate('/report')}
                 >
-                  <Lock size={16} />
-                  <span>Freeze Bank Account Instructions</span>
+                  Generate FIR Evidence Dossier
                 </button>
               </div>
-              <div style={{ marginTop: 'var(--space-md)', paddingTop: 'var(--space-sm)', borderTop: '1px solid rgba(196,197,215,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} className="text-label-sm">
-                <span style={{ color: 'var(--color-surface-variant)' }}>Golden Hour: Within 2 hours</span>
-                <span style={{ color: 'var(--color-tertiary-fixed)', fontWeight: 700 }}>Max Recovery Probability</span>
-              </div>
-            </div>
-
-            {/* Counter Card */}
-            <div style={{
-              padding: 'var(--space-md)', borderRadius: 'var(--radius-xl)',
-              background: 'var(--color-surface-container-low)', boxShadow: 'var(--shadow-card)',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
-                <div style={{
-                  width: 40, height: 40, borderRadius: 'var(--radius-lg)', background: 'var(--color-surface-container-lowest)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)',
-                  boxShadow: 'var(--shadow-card)',
-                }}>
-                  <ShieldCheck size={22} />
-                </div>
-                <div>
-                  <span className="text-headline-sm" style={{ fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>1,429,812</span>
-                  <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', display: 'block' }}>Scam attempts prevented across India</span>
-                </div>
-              </div>
-              <TrendingUp size={20} style={{ color: 'var(--color-tertiary)' }} />
             </div>
           </div>
         </div>
