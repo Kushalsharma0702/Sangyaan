@@ -1,0 +1,6 @@
+pyproject.toml
+sangyan_shield_backend.egg-info/PKG-INFO
+sangyan_shield_backend.egg-info/SOURCES.txt
+sangyan_shield_backend.egg-info/dependency_links.txt
+sangyan_shield_backend.egg-info/requires.txt
+sangyan_shield_backend.egg-info/top_level.txt
